@@ -1,15 +1,11 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import FileUpload from '../components/FileUpload';
 import uploadService from '../services/uploadService';
-import { useToast } from '../components/Toast';
-import LoadingSpinner from '../components/LoadingSpinner';
 
 const UploadPage = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
-  const { addToast } = useToast();
   const fileUploadRef = useRef(null);
   const navigate = useNavigate();
 
@@ -20,7 +16,7 @@ const UploadPage = () => {
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      addToast('Please select a file first', 'error');
+      alert('Please select a file first');
       return;
     }
 
@@ -38,7 +34,7 @@ const UploadPage = () => {
       });
 
       setUploadProgress(100);
-      addToast('File uploaded successfully!', 'success');
+      alert('File uploaded successfully!');
       
       // Navigate to chat after a short delay
       setTimeout(() => {
@@ -46,7 +42,7 @@ const UploadPage = () => {
       }, 1500);
 
     } catch (error) {
-      addToast(error.message || 'Upload failed', 'error');
+      alert(error.message || 'Upload failed');
     } finally {
       setIsUploading(false);
       // Reset the file upload component processing state
@@ -60,62 +56,104 @@ const UploadPage = () => {
     navigate('/chat');
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      handleFileSelect(file);
+    }
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center h-full px-4 py-8">
-      <div className="w-full max-w-2xl">
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+      <div style={{ width: '100%', maxWidth: '600px' }}>
         {/* Header */}
-        <div className="text-center mb-10">
-          <div className="w-16 h-16 bg-gradient-to-r from-red-600 to-red-700 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-white text-2xl">📤</span>
-          </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Upload Document</h1>
-          <p className="text-gray-400">Upload your documents for AI-powered Q&A</p>
+        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>📤</div>
+          <h1 style={{ fontSize: '32px', marginBottom: '8px' }}>Upload Document</h1>
+          <p style={{ color: '#666' }}>Upload your documents for AI-powered Q&A</p>
         </div>
         
         {/* Upload Area */}
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-700 p-8 mb-6">
-          <FileUpload 
-            ref={fileUploadRef}
-            onFileSelect={handleFileSelect}
-            allowedTypes={['.pdf', '.docx', '.txt']}
-            maxSize={10 * 1024 * 1024} // 10MB
-          />
+        <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '32px', backgroundColor: '#f9f9f9', marginBottom: '24px' }}>
+          <div style={{ border: '2px dashed #ccc', borderRadius: '8px', padding: '40px', textAlign: 'center', backgroundColor: '#fff' }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>📁</div>
+            <p style={{ marginBottom: '16px', color: '#666' }}>
+              {selectedFile ? selectedFile.name : 'Click to select or drag and drop your file here'}
+            </p>
+            <input
+              type="file"
+              ref={fileUploadRef}
+              onChange={handleFileChange}
+              accept=".pdf,.docx,.txt"
+              style={{ display: 'none' }}
+            />
+            <button
+              onClick={() => fileUploadRef.current?.click()}
+              style={{
+                padding: '12px 24px',
+                backgroundColor: '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '16px'
+              }}
+            >
+              Choose File
+            </button>
+          </div>
           
           {/* Upload progress */}
           {isUploading && (
-            <div className="mt-6">
-              <div className="flex justify-between mb-2">
-                <span className="text-sm font-medium text-gray-300">Uploading...</span>
-                <span className="text-sm font-medium text-gray-300">{uploadProgress}%</span>
+            <div style={{ marginTop: '24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span>Uploading...</span>
+                <span>{uploadProgress}%</span>
               </div>
-              <div className="w-full bg-gray-700 rounded-full h-3">
+              <div style={{ width: '100%', backgroundColor: '#e9ecef', borderRadius: '4px', height: '8px' }}>
                 <div
-                  className="bg-gradient-to-r from-red-600 to-red-500 h-3 rounded-full transition-all duration-300"
-                  style={{ width: `${uploadProgress}%` }}
+                  style={{
+                    backgroundColor: '#007bff',
+                    height: '100%',
+                    borderRadius: '4px',
+                    transition: 'width 0.3s ease',
+                    width: `${uploadProgress}%`
+                  }}
                 ></div>
               </div>
             </div>
           )}
 
           {/* Action buttons */}
-          <div className="mt-8 flex flex-col sm:flex-row gap-3">
+          <div style={{ marginTop: '24px', display: 'flex', gap: '12px', justifyContent: 'center' }}>
             <button
               onClick={handleUpload}
               disabled={isUploading || !selectedFile}
-              className={`flex-1 px-6 py-3 rounded-lg text-white font-medium flex items-center justify-center transition-all duration-200 ${
-                isUploading || !selectedFile
-                  ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 shadow-lg'
-              }`}
+              style={{
+                padding: '12px 24px',
+                backgroundColor: isUploading || !selectedFile ? '#6c757d' : '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: isUploading || !selectedFile ? 'not-allowed' : 'pointer',
+                fontSize: '16px'
+              }}
             >
-              {isUploading && <LoadingSpinner size="sm" className="mr-2" />}
               {isUploading ? 'Uploading...' : 'Upload Document'}
             </button>
             
             <button
               onClick={handleSkip}
               disabled={isUploading}
-              className="px-6 py-3 rounded-lg border border-gray-600 text-gray-300 font-medium hover:bg-gray-700 disabled:opacity-50 transition-colors duration-200"
+              style={{
+                padding: '12px 24px',
+                backgroundColor: '#6c757d',
+                color: 'white',
+                border: '1px solid #ccc',
+                borderRadius: '4px',
+                cursor: isUploading ? 'not-allowed' : 'pointer',
+                fontSize: '16px'
+              }}
             >
               Skip for now
             </button>
@@ -123,48 +161,43 @@ const UploadPage = () => {
         </div>
 
         {/* Info section */}
-        <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
-          <h3 className="font-semibold text-white mb-4 flex items-center">
-            <svg className="w-5 h-5 mr-2 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            About Document Upload
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-start space-x-3">
-              <div className="w-8 h-8 bg-red-600/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                <span className="text-red-400 text-sm">🔍</span>
-              </div>
+        <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '24px', backgroundColor: '#f9f9f9' }}>
+          <h3 style={{ marginBottom: '16px', fontSize: '18px' }}>About Document Upload</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+              <div style={{ fontSize: '24px' }}>🔍</div>
               <div>
-                <h4 className="text-white font-medium mb-1">Smart Processing</h4>
-                <p className="text-gray-400 text-sm">Documents are processed using RAG technology for intelligent Q&A</p>
+                <h4 style={{ margin: '0 0 4px 0', fontSize: '16px' }}>Smart Processing</h4>
+                <p style={{ margin: 0, color: '#666', fontSize: '14px' }}>
+                  Documents are processed using RAG technology for intelligent Q&A
+                </p>
               </div>
             </div>
-            <div className="flex items-start space-x-3">
-              <div className="w-8 h-8 bg-red-600/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                <span className="text-red-400 text-sm">🔒</span>
-              </div>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+              <div style={{ fontSize: '24px' }}>🔒</div>
               <div>
-                <h4 className="text-white font-medium mb-1">Secure Upload</h4>
-                <p className="text-gray-400 text-sm">Your documents are processed securely and not stored permanently</p>
+                <h4 style={{ margin: '0 0 4px 0', fontSize: '16px' }}>Secure Upload</h4>
+                <p style={{ margin: 0, color: '#666', fontSize: '14px' }}>
+                  Your documents are processed securely and not stored permanently
+                </p>
               </div>
             </div>
-            <div className="flex items-start space-x-3">
-              <div className="w-8 h-8 bg-red-600/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                <span className="text-red-400 text-sm">📄</span>
-              </div>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+              <div style={{ fontSize: '24px' }}>📄</div>
               <div>
-                <h4 className="text-white font-medium mb-1">Multiple Formats</h4>
-                <p className="text-gray-400 text-sm">Support for PDF, DOCX, and TXT files up to 10MB</p>
+                <h4 style={{ margin: '0 0 4px 0', fontSize: '16px' }}>Multiple Formats</h4>
+                <p style={{ margin: 0, color: '#666', fontSize: '14px' }}>
+                  Support for PDF, DOCX, and TXT files up to 10MB
+                </p>
               </div>
             </div>
-            <div className="flex items-start space-x-3">
-              <div className="w-8 h-8 bg-red-600/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                <span className="text-red-400 text-sm">⚡</span>
-              </div>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+              <div style={{ fontSize: '24px' }}>⚡</div>
               <div>
-                <h4 className="text-white font-medium mb-1">Fast Processing</h4>
-                <p className="text-gray-400 text-sm">Quick analysis and immediate availability for Q&A</p>
+                <h4 style={{ margin: '0 0 4px 0', fontSize: '16px' }}>Fast Processing</h4>
+                <p style={{ margin: 0, color: '#666', fontSize: '14px' }}>
+                  Quick analysis and immediate availability for Q&A
+                </p>
               </div>
             </div>
           </div>

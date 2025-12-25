@@ -1,15 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import DocumentCard from '../components/DocumentCard';
 import uploadService from '../services/uploadService';
-import { useToast } from '../components/Toast';
-import LoadingSpinner from '../components/LoadingSpinner';
-import EmptyState from '../components/EmptyState';
 
 const DocumentsPage = () => {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const { addToast } = useToast();
   
   // Mock documents for now
   useEffect(() => {
@@ -20,7 +15,7 @@ const DocumentsPage = () => {
         setDocuments(data);
       } catch (error) {
         console.error('Error fetching documents:', error);
-        addToast('Failed to load documents. Please try again later.', 'error');
+        alert('Failed to load documents. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -55,16 +50,18 @@ const DocumentsPage = () => {
   }, []);
   
   const handleDeleteDocument = async (id) => {
-    try {
-      // Call the API to delete the document
-      await uploadService.deleteDocument(id);
-      
-      // Update the local state to remove the document
-      setDocuments(documents.filter(doc => doc.id !== id));
-      addToast('Document deleted successfully', 'success');
-    } catch (error) {
-      console.error('Error deleting document:', error);
-      addToast('Failed to delete document. Please try again.', 'error');
+    if (confirm('Are you sure you want to delete this document?')) {
+      try {
+        // Call the API to delete the document
+        await uploadService.deleteDocument(id);
+        
+        // Update the local state to remove the document
+        setDocuments(documents.filter(doc => doc.id !== id));
+        alert('Document deleted successfully');
+      } catch (error) {
+        console.error('Error deleting document:', error);
+        alert('Failed to delete document. Please try again.');
+      }
     }
   };
   
@@ -81,75 +78,94 @@ const DocumentsPage = () => {
         // Refresh the document list
         const data = await uploadService.getDocuments();
         setDocuments(data);
-        addToast('Document uploaded successfully', 'success');
+        alert('Document uploaded successfully');
       } catch (error) {
         console.error('Error uploading document:', error);
-        addToast('Failed to upload document. Please try again.', 'error');
+        alert('Failed to upload document. Please try again.');
       } finally {
         setUploading(false);
       }
     }
   };
+
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+  };
   
   return (
-    <div className="flex flex-col h-full px-4 py-8">
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '20px', fontFamily: 'Arial, sans-serif' }}>
       {/* Header */}
-      <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-gradient-to-r from-red-600 to-red-700 rounded-full flex items-center justify-center mx-auto mb-4">
-          <span className="text-white text-2xl">📁</span>
-        </div>
-        <h1 className="text-3xl font-bold text-white mb-2">My Documents</h1>
-        <p className="text-gray-400">Manage your uploaded documents</p>
+      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+        <div style={{ fontSize: '48px', marginBottom: '16px' }}>📁</div>
+        <h1 style={{ fontSize: '32px', marginBottom: '8px' }}>My Documents</h1>
+        <p style={{ color: '#666' }}>Manage your uploaded documents</p>
       </div>
       
       {/* Upload Section */}
-      <div className="mb-8 max-w-2xl mx-auto w-full">
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-700 p-6">
-          <h2 className="text-lg font-semibold text-white mb-4 flex items-center">
-            <svg className="w-5 h-5 mr-2 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Upload New Document
-          </h2>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <label className={`bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-lg cursor-pointer flex items-center font-medium transition-all duration-200 ${uploading ? 'opacity-75 cursor-not-allowed' : 'hover:from-red-700 hover:to-red-800 shadow-lg'}`}>
-              {uploading && <LoadingSpinner size="sm" className="mr-2" />}
+      <div style={{ marginBottom: '40px', maxWidth: '600px', margin: '0 auto 40px' }}>
+        <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '24px', backgroundColor: '#f9f9f9' }}>
+          <h2 style={{ marginBottom: '16px', fontSize: '18px' }}>Upload New Document</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+            <label style={{
+              backgroundColor: uploading ? '#6c757d' : '#007bff',
+              color: 'white',
+              padding: '12px 20px',
+              borderRadius: '4px',
+              cursor: uploading ? 'not-allowed' : 'pointer',
+              fontSize: '16px'
+            }}>
               {uploading ? 'Uploading...' : 'Choose File'}
               <input 
                 type="file" 
-                className="hidden" 
+                style={{ display: 'none' }} 
                 accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx"
                 onChange={handleFileUpload}
                 disabled={uploading}
               />
             </label>
-            <span className="text-gray-400 text-sm">PDF, DOC, DOCX, TXT, XLS, XLSX, PPT, PPTX (Max 10MB)</span>
+            <span style={{ color: '#666', fontSize: '14px' }}>
+              PDF, DOC, DOCX, TXT, XLS, XLSX, PPT, PPTX (Max 10MB)
+            </span>
           </div>
         </div>
       </div>
       
       {/* Documents List */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-6xl mx-auto">
+      <div style={{ flex: 1, overflowY: 'auto' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           {loading ? (
-            <div className="text-center py-20">
-              <LoadingSpinner size="lg" className="mx-auto text-red-500" />
-              <p className="mt-4 text-gray-400">Loading documents...</p>
+            <div style={{ textAlign: 'center', padding: '40px' }}>
+              <div style={{ fontSize: '24px', marginBottom: '16px' }}>⏳</div>
+              <p style={{ color: '#666' }}>Loading documents...</p>
             </div>
           ) : documents.length === 0 ? (
-            <div className="text-center py-20">
-              <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-3xl">📄</span>
-              </div>
-              <h2 className="text-2xl font-bold text-white mb-4">No documents yet</h2>
-              <p className="text-gray-400 mb-8 max-w-md mx-auto">
+            <div style={{ textAlign: 'center', padding: '40px' }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>📄</div>
+              <h2 style={{ fontSize: '24px', marginBottom: '16px' }}>No documents yet</h2>
+              <p style={{ color: '#666', marginBottom: '24px', maxWidth: '400px', margin: '0 auto 24px' }}>
                 Upload your first document to get started with RAGify. Your documents will appear here once uploaded.
               </p>
-              <label className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 cursor-pointer transition-all duration-200">
+              <label style={{
+                backgroundColor: '#007bff',
+                color: 'white',
+                padding: '12px 24px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '16px'
+              }}>
                 Upload Document
                 <input 
                   type="file" 
-                  className="hidden" 
+                  style={{ display: 'none' }} 
                   accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx"
                   onChange={handleFileUpload}
                   disabled={uploading}
@@ -158,28 +174,105 @@ const DocumentsPage = () => {
             </div>
           ) : (
             <div>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-white">Your Documents ({documents.length})</h2>
-                <div className="flex items-center space-x-4">
-                  <button className="text-gray-400 hover:text-white transition-colors duration-200">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+                <h2 style={{ fontSize: '20px', margin: 0 }}>Your Documents ({documents.length})</h2>
+                <div style={{ display: 'flex', gap: '16px' }}>
+                  <button style={{
+                    background: 'none',
+                    border: '1px solid #ddd',
+                    padding: '8px',
+                    cursor: 'pointer',
+                    borderRadius: '4px'
+                  }}>
+                    🔄
                   </button>
-                  <button className="text-gray-400 hover:text-white transition-colors duration-200">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
+                  <button style={{
+                    background: 'none',
+                    border: '1px solid #ddd',
+                    padding: '8px',
+                    cursor: 'pointer',
+                    borderRadius: '4px'
+                  }}>
+                    ☰
                   </button>
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
                 {documents.map((document) => (
-                  <DocumentCard 
-                    key={document.id} 
-                    document={document} 
-                    onDelete={handleDeleteDocument} 
-                  />
+                  <div key={document.id} style={{
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    padding: '20px',
+                    backgroundColor: '#f9f9f9',
+                    transition: 'all 0.3s ease'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+                      <div style={{
+                        fontSize: '32px',
+                        marginRight: '12px',
+                        backgroundColor: '#e9ecef',
+                        padding: '8px',
+                        borderRadius: '4px'
+                      }}>
+                        📄
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <h3 style={{
+                          margin: 0,
+                          fontSize: '16px',
+                          fontWeight: 'bold',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}>
+                          {document.name}
+                        </h3>
+                        <p style={{ 
+                          margin: '4px 0 0 0', 
+                          color: '#666', 
+                          fontSize: '14px' 
+                        }}>
+                          {formatFileSize(document.size)}
+                        </p>
+                      </div>
+                    </div>
+                    <div style={{ 
+                      fontSize: '12px', 
+                      color: '#666', 
+                      marginBottom: '16px' 
+                    }}>
+                      Uploaded: {formatDate(document.uploadDate)}
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button style={{
+                        flex: 1,
+                        padding: '8px 12px',
+                        backgroundColor: '#007bff',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '14px'
+                      }}>
+                        View
+                      </button>
+                      <button
+                        onClick={() => handleDeleteDocument(document.id)}
+                        style={{
+                          flex: 1,
+                          padding: '8px 12px',
+                          backgroundColor: '#dc3545',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '14px'
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>

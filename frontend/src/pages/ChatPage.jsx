@@ -1,9 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ChatMessage from '../components/ChatMessage';
 import chatService from '../services/chatService';
-import { useToast } from '../components/Toast';
-import LoadingSpinner from '../components/LoadingSpinner';
 
 const ChatPage = () => {
   const [messages, setMessages] = useState([
@@ -17,7 +14,6 @@ const ChatPage = () => {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { addToast } = useToast();
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const navigate = useNavigate();
@@ -52,7 +48,7 @@ const ChatPage = () => {
       const aiMessageId = Date.now() + 1;
       const loadingMessage = {
         id: aiMessageId,
-        text: '',
+        text: 'Thinking...',
         sender: 'ai',
         timestamp: new Date(),
         sources: [],
@@ -92,7 +88,6 @@ const ChatPage = () => {
       };
       
       setMessages(prev => [...prev, errorMessage]);
-      addToast(err.message || 'An error occurred while processing your question', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -106,37 +101,69 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-gray-900">
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', fontFamily: 'Arial, sans-serif' }}>
       {/* Chat Messages Container */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-3xl mx-auto px-4 py-6">
+      <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
           {messages.length === 1 && messages[0].sender === 'ai' ? (
             // Welcome state
-            <div className="flex flex-col items-center justify-center h-full text-center py-20">
-              <div className="w-16 h-16 bg-gradient-to-r from-red-600 to-red-700 rounded-full flex items-center justify-center mb-6">
-                <span className="text-white font-bold text-2xl">R</span>
-              </div>
-              <h1 className="text-3xl font-bold text-white mb-4">Welcome to RAGify</h1>
-              <p className="text-gray-400 text-lg mb-8 max-w-md">
+            <div style={{ textAlign: 'center', padding: '40px' }}>
+              <div style={{ fontSize: '48px', marginBottom: '20px' }}>R</div>
+              <h1 style={{ fontSize: '32px', marginBottom: '16px' }}>Welcome to RAGify</h1>
+              <p style={{ color: '#666', fontSize: '18px', marginBottom: '32px', maxWidth: '400px', margin: '0 auto 32px' }}>
                 Upload documents and ask questions about them. I'll provide answers based on your uploaded content.
               </p>
               <button
                 onClick={() => navigate('/upload')}
-                className="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-lg hover:from-red-700 hover:to-red-800 font-medium transition-all duration-200 shadow-lg"
+                style={{
+                  padding: '12px 24px',
+                  backgroundColor: '#007bff',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '16px'
+                }}
               >
                 Upload Documents
               </button>
             </div>
           ) : (
             // Chat messages
-            <div className="space-y-6">
+            <div>
               {messages.map((message) => (
-                <ChatMessage
-                  key={message.id}
-                  message={message}
-                  isUser={message.sender === 'user'}
-                  isLoading={message.isLoading}
-                />
+                <div key={message.id} style={{ 
+                  marginBottom: '20px',
+                  display: 'flex',
+                  justifyContent: message.sender === 'user' ? 'flex-end' : 'flex-start'
+                }}>
+                  <div style={{
+                    maxWidth: '70%',
+                    padding: '12px 16px',
+                    backgroundColor: message.sender === 'user' ? '#007bff' : '#f1f3f4',
+                    color: message.sender === 'user' ? 'white' : 'black',
+                    borderRadius: '8px',
+                    border: '1px solid #ddd'
+                  }}>
+                    {message.isLoading ? (
+                      <span>{message.text}</span>
+                    ) : (
+                      <div>
+                        <div>{message.text}</div>
+                        {message.sources && message.sources.length > 0 && (
+                          <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #ddd' }}>
+                            <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px' }}>Sources:</div>
+                            {message.sources.map((source, index) => (
+                              <div key={index} style={{ fontSize: '12px', color: '#666', marginBottom: '4px' }}>
+                                📄 {source}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
               ))}
               <div ref={messagesEndRef} />
             </div>
@@ -145,65 +172,47 @@ const ChatPage = () => {
       </div>
       
       {/* Input Area */}
-      <div className="border-t border-gray-800 bg-gray-950">
-        <div className="max-w-3xl mx-auto px-4 py-4">
-          <form onSubmit={handleSubmit} className="relative">
-            <div className="flex items-end space-x-2">
-              <div className="flex-1 relative">
-                <textarea
-                  ref={inputRef}
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Ask a question about your documents..."
-                  className="w-full px-4 py-3 pr-12 bg-gray-800 text-white rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-red-500 border border-gray-700 placeholder-gray-500 transition-all duration-200"
-                  disabled={isLoading}
-                  rows={1}
-                  style={{
-                    minHeight: '52px',
-                    maxHeight: '200px',
-                    height: 'auto'
-                  }}
-                  onInput={(e) => {
-                    e.target.style.height = 'auto';
-                    e.target.style.height = Math.min(e.target.scrollHeight, 200) + 'px';
-                  }}
-                />
-                <button
-                  type="button"
-                  className="absolute right-2 bottom-2 p-2 text-gray-400 hover:text-gray-200 transition-colors duration-200"
-                  title="Attach file"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                  </svg>
-                </button>
-              </div>
-              
-              <button
-                type="submit"
-                disabled={isLoading || !inputValue.trim()}
-                className={`px-4 py-3 rounded-lg flex items-center justify-center font-medium transition-all duration-200 ${
-                  isLoading || !inputValue.trim()
-                    ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 shadow-lg'
-                }`}
-              >
-                {isLoading ? (
-                  <LoadingSpinner size="sm" />
-                ) : (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                  </svg>
-                )}
-              </button>
-            </div>
-            
-            <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
-              <span>RAGify can make mistakes. Consider checking important information.</span>
-              <span>{inputValue.length}/4000</span>
-            </div>
+      <div style={{ borderTop: '1px solid #ddd', backgroundColor: '#f8f9fa', padding: '16px' }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '12px' }}>
+            <textarea
+              ref={inputRef}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask a question about your documents..."
+              style={{
+                flex: 1,
+                padding: '12px',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                fontSize: '14px',
+                resize: 'none',
+                minHeight: '44px',
+                maxHeight: '120px'
+              }}
+              disabled={isLoading}
+            />
+            <button
+              type="submit"
+              disabled={isLoading || !inputValue.trim()}
+              style={{
+                padding: '12px 20px',
+                backgroundColor: isLoading || !inputValue.trim() ? '#6c757d' : '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: isLoading || !inputValue.trim() ? 'not-allowed' : 'pointer',
+                fontSize: '14px'
+              }}
+            >
+              {isLoading ? 'Sending...' : 'Send'}
+            </button>
           </form>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '12px', color: '#666' }}>
+            <span>RAGify can make mistakes. Consider checking important information.</span>
+            <span>{inputValue.length}/4000</span>
+          </div>
         </div>
       </div>
     </div>
