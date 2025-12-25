@@ -7,10 +7,20 @@ const uploadService = {
       throw new Error('No file provided for upload');
     }
 
-    // Validate file type
-    const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+    // Validate file type - expanded to match backend
+    const allowedTypes = [
+      'application/pdf',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/msword',
+      'text/plain',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.ms-powerpoint',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+    ];
+    
     if (!allowedTypes.includes(file.type)) {
-      throw new Error(`Invalid file type. Allowed types: PDF, DOCX, TXT`);
+      throw new Error(`Invalid file type. Allowed types: PDF, DOC, DOCX, TXT, XLS, XLSX, PPT, PPTX`);
     }
 
     // Validate file size (10MB limit)
@@ -23,7 +33,7 @@ const uploadService = {
     formData.append('file', file);
 
     try {
-      const response = await axiosClient.post('/documents/upload', formData, {
+      const response = await axiosClient.post('/documents', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -47,12 +57,14 @@ const uploadService = {
           throw new Error('Unsupported file type');
         } else if (data && data.message) {
           throw new Error(data.message);
+        } else if (data && data.error) {
+          throw new Error(data.error);
         } else {
-          throw new Error(`Upload failed with status ${status}`);
+          throw new Error(`Upload failed with status ${status}: ${data || 'Unknown error'}`);
         }
       } else if (error.request) {
         // Request was made but no response received
-        throw new Error('Network error: Unable to reach the server');
+        throw new Error('Network error: Unable to reach server. Make sure the backend is running on port 8080.');
       } else {
         // Something else happened
         throw new Error(error.message || 'An error occurred during upload');
@@ -69,7 +81,7 @@ const uploadService = {
       if (error.response) {
         throw new Error(error.response.data.message || `Failed to fetch documents: ${error.response.status}`);
       } else if (error.request) {
-        throw new Error('Network error: Unable to reach the server');
+        throw new Error('Network error: Unable to reach server. Make sure the backend is running on port 8080.');
       } else {
         throw new Error(error.message || 'An error occurred while fetching documents');
       }
@@ -89,9 +101,9 @@ const uploadService = {
       if (error.response) {
         throw new Error(error.response.data.message || `Failed to delete document: ${error.response.status}`);
       } else if (error.request) {
-        throw new Error('Network error: Unable to reach the server');
+        throw new Error('Network error: Unable to reach server. Make sure the backend is running on port 8080.');
       } else {
-        throw new Error(error.message || 'An error occurred while deleting the document');
+        throw new Error(error.message || 'An error occurred while deleting document');
       }
     }
   },
@@ -109,9 +121,9 @@ const uploadService = {
       if (error.response) {
         throw new Error(error.response.data.message || `Failed to fetch document: ${error.response.status}`);
       } else if (error.request) {
-        throw new Error('Network error: Unable to reach the server');
+        throw new Error('Network error: Unable to reach server. Make sure the backend is running on port 8080.');
       } else {
-        throw new Error(error.message || 'An error occurred while fetching the document');
+        throw new Error(error.message || 'An error occurred while fetching document');
       }
     }
   },

@@ -8,7 +8,7 @@ const chatService = {
     }
 
     try {
-      const response = await axiosClient.post('/chat', {
+      const response = await axiosClient.post('/chat/ask', {
         question: question.trim(),
         documentIds: Array.isArray(documentIds) ? documentIds : []
       });
@@ -24,12 +24,16 @@ const chatService = {
           throw new Error('No documents found to answer your question. Please upload documents first.');
         } else if (status === 500) {
           throw new Error(data.message || 'Internal server error: Unable to process your request');
+        } else if (data && data.message) {
+          throw new Error(data.message);
+        } else if (data && data.error) {
+          throw new Error(data.error);
         } else {
-          throw new Error(data.message || `Request failed with status ${status}`);
+          throw new Error(`Request failed with status ${status}: ${data || 'Unknown error'}`);
         }
       } else if (error.request) {
         // Request was made but no response received
-        throw new Error('Network error: Unable to reach the server');
+        throw new Error('Network error: Unable to reach server. Make sure the backend is running on port 8080.');
       } else {
         // Something else happened
         throw new Error(error.message || 'An error occurred while processing your question');
@@ -37,7 +41,63 @@ const chatService = {
     }
   },
 
-  // Get chat history (if the backend supports it)
+  // Create a new chat session
+  createSession: async () => {
+    try {
+      const response = await axiosClient.post('/chat/session');
+      return response.data;
+    } catch (error) {
+      if (error.response) {
+        throw new Error(error.response.data.message || `Failed to create session: ${error.response.status}`);
+      } else if (error.request) {
+        throw new Error('Network error: Unable to reach server. Make sure the backend is running on port 8080.');
+      } else {
+        throw new Error(error.message || 'An error occurred while creating session');
+      }
+    }
+  },
+
+  // Get chat session details
+  getSession: async (sessionId) => {
+    if (!sessionId) {
+      throw new Error('Session ID is required');
+    }
+
+    try {
+      const response = await axiosClient.get(`/chat/session/${sessionId}`);
+      return response.data;
+    } catch (error) {
+      if (error.response) {
+        throw new Error(error.response.data.message || `Failed to get session: ${error.response.status}`);
+      } else if (error.request) {
+        throw new Error('Network error: Unable to reach server. Make sure the backend is running on port 8080.');
+      } else {
+        throw new Error(error.message || 'An error occurred while fetching session');
+      }
+    }
+  },
+
+  // Get session messages
+  getSessionMessages: async (sessionId) => {
+    if (!sessionId) {
+      throw new Error('Session ID is required');
+    }
+
+    try {
+      const response = await axiosClient.get(`/chat/session/${sessionId}/messages`);
+      return response.data;
+    } catch (error) {
+      if (error.response) {
+        throw new Error(error.response.data.message || `Failed to get session messages: ${error.response.status}`);
+      } else if (error.request) {
+        throw new Error('Network error: Unable to reach server. Make sure the backend is running on port 8080.');
+      } else {
+        throw new Error(error.message || 'An error occurred while fetching session messages');
+      }
+    }
+  },
+
+  // Get chat history (if backend supports it)
   getChatHistory: async (limit = 10, offset = 0) => {
     try {
       const response = await axiosClient.get('/chat/history', {
@@ -52,14 +112,14 @@ const chatService = {
       if (error.response) {
         throw new Error(error.response.data.message || `Failed to fetch chat history: ${error.response.status}`);
       } else if (error.request) {
-        throw new Error('Network error: Unable to reach the server');
+        throw new Error('Network error: Unable to reach server. Make sure the backend is running on port 8080.');
       } else {
         throw new Error(error.message || 'An error occurred while fetching chat history');
       }
     }
   },
 
-  // Get sources for a specific question (if the backend supports it)
+  // Get sources for a specific question (if backend supports it)
   getSources: async (questionId) => {
     if (!questionId) {
       throw new Error('Question ID is required');
@@ -72,7 +132,7 @@ const chatService = {
       if (error.response) {
         throw new Error(error.response.data.message || `Failed to fetch sources: ${error.response.status}`);
       } else if (error.request) {
-        throw new Error('Network error: Unable to reach the server');
+        throw new Error('Network error: Unable to reach server. Make sure the backend is running on port 8080.');
       } else {
         throw new Error(error.message || 'An error occurred while fetching sources');
       }
@@ -94,7 +154,7 @@ const chatService = {
     // (e.g., Server-Sent Events, WebSocket, or fetch with ReadableStream)
     
     try {
-      // For now, we'll simulate streaming by calling the regular askQuestion endpoint
+      // For now, we'll simulate streaming by calling regular askQuestion endpoint
       // In a real implementation, this would use a different endpoint that supports streaming
       const response = await axiosClient.post('/chat/stream', {
         question: question.trim(),
@@ -111,12 +171,12 @@ const chatService = {
       if (error.response) {
         throw new Error(error.response.data.message || `Streaming request failed: ${error.response.status}`);
       } else if (error.request) {
-        throw new Error('Network error: Unable to reach the server');
+        throw new Error('Network error: Unable to reach server. Make sure the backend is running on port 8080.');
       } else {
         throw new Error(error.message || 'An error occurred during streaming');
       }
     }
-  }
+  },
 };
 
 export default chatService;

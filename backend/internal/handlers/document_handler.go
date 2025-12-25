@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
+	"ragify-backend/internal/models"
 	"ragify-backend/internal/services"
 	"ragify-backend/internal/utils"
 	"strconv"
@@ -9,64 +11,192 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// DocumentHandler handles document-related HTTP requests
 type DocumentHandler struct {
-	Service *services.DocumentService
+	documentService *services.DocumentService
 }
 
-func NewDocumentHandler(service *services.DocumentService) *DocumentHandler {
-	return &DocumentHandler{Service: service}
+// NewDocumentHandler creates a new document handler
+func NewDocumentHandler(documentService *services.DocumentService) *DocumentHandler {
+	return &DocumentHandler{documentService: documentService}
 }
 
-// UploadDocument handles document upload
+// UploadDocument handles file upload requests
 func (h *DocumentHandler) UploadDocument(c echo.Context) error {
-	// In a real implementation, this would process the file upload
-	// and store it in the database and file system
-	return utils.SendSuccess(c, "Document upload endpoint", nil, http.StatusOK)
-}
-
-// GetDocuments retrieves all documents for the user
-func (h *DocumentHandler) GetDocuments(c echo.Context) error {
-	// Use the service to get documents
-	documents, err := h.Service.GetDocuments()
+	// Get file from form
+	file, err := c.FormFile("file")
 	if err != nil {
-		return utils.InternalError(c, "Failed to retrieve documents", err)
+		return c.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Error:   "Failed to get file from form",
+			Message: "No file provided or invalid form data",
+		})
 	}
 
-	return utils.SendSuccess(c, "Documents retrieved successfully", documents, http.StatusOK)
+	// Validate file
+	validation := utils.ValidateFile(file)
+	if !validation.IsValid {
+		return c.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Error:   "Validation failed",
+			Message: validation.Error,
+		})
+	}
+
+	// Open the uploaded file
+	src, err := file.Open()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Error:   "Failed to open uploaded file",
+			Message: err.Error(),
+		})
+	}
+	defer src.Close()
+
+	// Save file to local storage
+	filePath, err := utils.SaveFile(file, src)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Error:   "Failed to save file",
+			Message: err.Error(),
+		})
+	}
+
+	// Create document record in database
+	document, err := h.documentService.UploadDocument(file.Filename, filePath, file.Header.Get("Content-Type"), file.Size)
+	if err != nil {
+		// Clean up file if database operation fails
+		utils.DeleteFile(filePath)
+		return c.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Error:   "Failed to save document",
+			Message: err.Error(),
+		})
+	}
+
+	// Prepare response
+	response := models.UploadResponse{
+		Message:    "Document uploaded successfully",
+		DocumentID: document.ID,
+		Document: models.DocumentResponse{
+			ID:           document.ID,
+			Filename:     document.Filename,
+			OriginalName: document.OriginalName,
+			ContentType:  document.ContentType,
+			Size:         document.Size,
+			PageCount:    document.PageCount,
+			CreatedAt:    document.CreatedAt.Format("2006-01-02 15:04:05"),
+		},
+	}
+
+	return c.JSON(http.StatusCreated, response)
+}
+
+// GetDocuments retrieves all documents
+func (h *DocumentHandler) GetDocuments(c echo.Context) error {
+	// Get user ID from context (if available)
+	userID := c.Get("user_id")
+
+	var documents []models.Document
+	var err error
+
+	// If user ID is available, get user's documents, otherwise get all documents
+	if userID != nil {
+		documents, err = h.documentService.GetDocumentsByUser(userID.(uint))
+	} else {
+		documents, err = h.documentService.GetDocuments()
+	}
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Error:   "Failed to retrieve documents",
+			Message: err.Error(),
+		})
+	}
+
+	// Convert to response format
+	var documentResponses []models.DocumentResponse
+	for _, doc := range documents {
+		documentResponses = append(documentResponses, models.DocumentResponse{
+			ID:           doc.ID,
+			Filename:     doc.Filename,
+			OriginalName: doc.OriginalName,
+			ContentType:  doc.ContentType,
+			Size:         doc.Size,
+			PageCount:    doc.PageCount,
+			CreatedAt:    doc.CreatedAt.Format("2006-01-02 15:04:05"),
+		})
+	}
+
+	return c.JSON(http.StatusOK, documentResponses)
 }
 
 // GetDocument retrieves a specific document by ID
 func (h *DocumentHandler) GetDocument(c echo.Context) error {
-	id := c.Param("id")
-	docID, err := strconv.ParseUint(id, 10, 32)
+	// Get document ID from URL parameter
+	idParam := c.Param("id")
+	documentID, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
-		return utils.BadRequest(c, "Invalid document ID")
+		return c.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Error:   "Invalid document ID",
+			Message: "Document ID must be a valid number",
+		})
 	}
 
-	// Use the service to get the document
-	document, err := h.Service.GetDocumentByID(uint(docID))
+	// Get document from database
+	document, err := h.documentService.GetDocument(uint(documentID))
 	if err != nil {
-		return utils.NotFound(c, "Document not found")
+		if err.Error() == "document not found" {
+			return c.JSON(http.StatusNotFound, models.ErrorResponse{
+				Error:   "Document not found",
+				Message: fmt.Sprintf("Document with ID %s not found", idParam),
+			})
+		}
+		return c.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Error:   "Failed to retrieve document",
+			Message: err.Error(),
+		})
 	}
 
-	return utils.SendSuccess(c, "Document retrieved successfully", document, http.StatusOK)
+	// Prepare response
+	response := models.DocumentResponse{
+		ID:           document.ID,
+		Filename:     document.Filename,
+		OriginalName: document.OriginalName,
+		ContentType:  document.ContentType,
+		Size:         document.Size,
+		PageCount:    document.PageCount,
+		CreatedAt:    document.CreatedAt.Format("2006-01-02 15:04:05"),
+	}
+
+	return c.JSON(http.StatusOK, response)
 }
 
-// DeleteDocument deletes a document by ID
+// DeleteDocument removes a document
 func (h *DocumentHandler) DeleteDocument(c echo.Context) error {
-	id := c.Param("id")
-	docID, err := strconv.ParseUint(id, 10, 32)
+	// Get document ID from URL parameter
+	idParam := c.Param("id")
+	documentID, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
-		return utils.BadRequest(c, "Invalid document ID")
+		return c.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Error:   "Invalid document ID",
+			Message: "Document ID must be a valid number",
+		})
 	}
 
-	// Use the service to delete the document
-	err = h.Service.DeleteDocument(uint(docID))
+	// Delete document
+	err = h.documentService.DeleteDocument(uint(documentID))
 	if err != nil {
-		return utils.InternalError(c, "Failed to delete document", err)
+		if err.Error() == "document not found" {
+			return c.JSON(http.StatusNotFound, models.ErrorResponse{
+				Error:   "Document not found",
+				Message: fmt.Sprintf("Document with ID %s not found", idParam),
+			})
+		}
+		return c.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Error:   "Failed to delete document",
+			Message: err.Error(),
+		})
 	}
 
-	return utils.SendSuccess(c, "Document deleted successfully", map[string]interface{}{
-		"id": docID,
-	}, http.StatusOK)
+	return c.JSON(http.StatusOK, map[string]string{
+		"message": "Document deleted successfully",
+	})
 }
