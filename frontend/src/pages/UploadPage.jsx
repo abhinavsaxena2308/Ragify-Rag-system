@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import FileUpload from '../components/FileUpload';
-import { documentService } from '../services/api';
+import uploadService from '../services/uploadService';
 
 const UploadPage = () => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -30,64 +30,23 @@ const UploadPage = () => {
     setUploadMessage('');
 
     try {
-      // Create a custom upload function that reports progress
-      const formData = new FormData();
-      formData.append('file', selectedFile);
-
-      // Create XMLHttpRequest to track upload progress
-      const xhr = new XMLHttpRequest();
-
-      // Track upload progress
-      xhr.upload.addEventListener('progress', (event) => {
-        if (event.lengthComputable) {
-          const progress = Math.round((event.loaded / event.total) * 100);
-          setUploadProgress(progress);
-        }
+      // Use the new upload service with progress tracking
+      const response = await uploadService.uploadDocument(selectedFile, (progress) => {
+        setUploadProgress(progress);
       });
 
-      // Handle response
-      xhr.addEventListener('load', () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          try {
-            const response = JSON.parse(xhr.responseText);
-            setUploadProgress(100);
-            setUploadStatus('success');
-            setUploadMessage('File uploaded successfully!');
-            
-            // Wait a moment then navigate to chat
-            setTimeout(() => {
-              navigate('/chat');
-            }, 1500);
-          } catch (error) {
-            setUploadStatus('error');
-            setUploadMessage('Error parsing response from server');
-          }
-        } else {
-          setUploadStatus('error');
-          setUploadMessage(`Upload failed: ${xhr.statusText || 'Unknown error'}`);
-        }
-        setIsUploading(false);
-      });
-
-      xhr.addEventListener('error', () => {
-        setUploadStatus('error');
-        setUploadMessage('Network error occurred during upload');
-        setIsUploading(false);
-      });
-
-      xhr.addEventListener('abort', () => {
-        setUploadStatus('error');
-        setUploadMessage('Upload was cancelled');
-        setIsUploading(false);
-      });
-
-      // Send the request
-      xhr.open('POST', `${import.meta.env.VITE_API_URL || 'http://localhost:8080/api'}/documents/upload`);
-      xhr.send(formData);
+      setUploadProgress(100);
+      setUploadStatus('success');
+      setUploadMessage('File uploaded successfully!');
+      
+      // Wait a moment then navigate to chat
+      setTimeout(() => {
+        navigate('/chat');
+      }, 1500);
 
     } catch (error) {
       setUploadStatus('error');
-      setUploadMessage(`Upload failed: ${error.message}`);
+      setUploadMessage(error.message || 'Upload failed');
       setIsUploading(false);
     }
   };

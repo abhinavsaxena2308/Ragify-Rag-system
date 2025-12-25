@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ChatMessage from '../components/ChatMessage';
-import { chatService } from '../services/api';
+import chatService from '../services/chatService';
 
 const ChatPage = () => {
   const [messages, setMessages] = useState([
@@ -60,26 +60,24 @@ const ChatPage = () => {
 
       setMessages(prev => [...prev, loadingMessage]);
 
-      // In a real implementation, we would call the API:
-      // const response = await chatService.askQuestion(inputValue);
-      // For now, simulate an API response with mock data
-      setTimeout(() => {
-        const aiResponse = {
-          id: aiMessageId,
-          text: `I understand you're asking about "${inputValue}". This is a simulated response from the RAGify system. In a real implementation, this would be generated based on your uploaded documents.`,
-          sender: 'ai',
-          timestamp: new Date(),
-          sources: ['Company Handbook.pdf', 'Financial Report Q3.docx'] // Mock sources
-        };
+      // Call the actual API service
+      const response = await chatService.askQuestion(inputValue);
+      
+      const aiResponse = {
+        id: aiMessageId,
+        text: response.answer || 'No response generated',
+        sender: 'ai',
+        timestamp: new Date(),
+        sources: response.sources || [] // Use sources from the API response
+      };
 
-        // Update the loading message with the actual response
-        setMessages(prev => 
-          prev.map(msg => 
-            msg.id === aiMessageId ? aiResponse : msg
-          )
-        );
-        setIsLoading(false);
-      }, 1500);
+      // Update the loading message with the actual response
+      setMessages(prev => 
+        prev.map(msg => 
+          msg.id === aiMessageId ? aiResponse : msg
+        )
+      );
+      setIsLoading(false);
 
     } catch (err) {
       // Remove the loading message

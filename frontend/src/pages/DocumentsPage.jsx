@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DocumentCard from '../components/DocumentCard';
-import { documentService } from '../services/api';
+import uploadService from '../services/uploadService';
 
 const DocumentsPage = () => {
   const [documents, setDocuments] = useState([]);
@@ -8,18 +8,18 @@ const DocumentsPage = () => {
   
   // Mock documents for now
   useEffect(() => {
-    // In a real app, we would fetch from API:
-    // const fetchDocuments = async () => {
-    //   try {
-    //     const data = await documentService.getDocuments();
-    //     setDocuments(data);
-    //   } catch (error) {
-    //     console.error('Error fetching documents:', error);
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchDocuments();
+    // Fetch documents from API
+    const fetchDocuments = async () => {
+      try {
+        const data = await uploadService.getDocuments();
+        setDocuments(data);
+      } catch (error) {
+        console.error('Error fetching documents:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDocuments();
     
     // For now, using mock data
     setDocuments([
@@ -49,10 +49,16 @@ const DocumentsPage = () => {
   }, []);
   
   const handleDeleteDocument = async (id) => {
-    // In a real app, we would call the API:
-    // await documentService.deleteDocument(id);
-    
-    setDocuments(documents.filter(doc => doc.id !== id));
+    try {
+      // Call the API to delete the document
+      await uploadService.deleteDocument(id);
+      
+      // Update the local state to remove the document
+      setDocuments(documents.filter(doc => doc.id !== id));
+    } catch (error) {
+      console.error('Error deleting document:', error);
+      // In a real app, you might want to show an error message to the user
+    }
   };
   
   const handleFileUpload = (e) => {
