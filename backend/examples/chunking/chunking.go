@@ -1,4 +1,4 @@
-package main
+package chunking
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"ragify-backend/internal/utils"
 )
 
-func main() {
+func RunChunkingExample() {
 	// Create chunking service with default configuration
 	config := services.DefaultChunkingConfig()
 	chunkingService := services.NewChunkingService(config)
