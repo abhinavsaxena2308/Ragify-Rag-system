@@ -59,17 +59,19 @@ type PromptTemplate struct {
 // DefaultPromptTemplate returns the default prompt template
 func DefaultPromptTemplate() *PromptTemplate {
 	return &PromptTemplate{
-		SystemPrompt: `You are a helpful AI assistant that answers questions based on the provided context. 
-Use only the information from the provided context to answer the question. 
-If the context doesn't contain enough information to answer the question, say "I don't have enough information to answer this question based on the provided context."
-Do not make up information or use external knowledge.
-Be concise and accurate in your responses.`,
-		UserPrompt: `Context:
+		SystemPrompt: `Answer only from the provided context. No hallucinations. Cite sources using [Source X] notation. Say "Not found in document" if information is missing.`,
+		UserPrompt: `Retrieved Context:
 {{.Context}}
 
-Question: {{.Question}}
+User Question: {{.Question}}
 
-Answer based on the context above:`,
+Instructions:
+- Answer ONLY using the retrieved context above
+- Cite your sources using [Source X] where X is the source number
+- If information is not found in the context, say "Not found in document"
+- Do not use external knowledge or make up information
+
+Answer:`,
 	}
 }
 
