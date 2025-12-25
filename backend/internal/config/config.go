@@ -1,18 +1,20 @@
 package config
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	Port         string
-	DatabaseURL  string
-	JWTSecret    string
-	PostgreSQL   PostgreSQLConfig
-	FAISS        FAISSConfig
-	LLM          LLMConfig
+	Port        string
+	DatabaseURL string
+	JWTSecret   string
+	PostgreSQL  PostgreSQLConfig
+	FAISS       FAISSConfig
+	LLM         LLMConfig
+	RAG         RAGConfig
 }
 
 type PostgreSQLConfig struct {
@@ -33,6 +35,13 @@ type LLMConfig struct {
 	Endpoint string
 	APIKey   string
 	Model    string
+}
+
+type RAGConfig struct {
+	RetrievalTopK       int
+	SimilarityThreshold float32
+	MaxContextLength    int
+	EmbeddingDimensions int
 }
 
 func LoadConfig() *Config {
@@ -60,6 +69,12 @@ func LoadConfig() *Config {
 			APIKey:   getEnvOrDefault("LLM_API_KEY", ""),
 			Model:    getEnvOrDefault("LLM_MODEL", "llama2"),
 		},
+		RAG: RAGConfig{
+			RetrievalTopK:       getEnvOrDefaultInt("RAG_TOP_K", 5),
+			SimilarityThreshold: getEnvOrDefaultFloat32("RAG_SIMILARITY_THRESHOLD", 0.0),
+			MaxContextLength:    getEnvOrDefaultInt("RAG_MAX_CONTEXT_LENGTH", 4000),
+			EmbeddingDimensions: getEnvOrDefaultInt("RAG_EMBEDDING_DIMENSIONS", 1536),
+		},
 	}
 }
 
@@ -68,4 +83,36 @@ func getEnvOrDefault(key, defaultValue string) string {
 		return value
 	}
 	return defaultValue
+}
+
+func getEnvOrDefaultInt(key string, defaultValue int) int {
+	if value := os.Getenv(key); value != "" {
+		// Parse int from string
+		if intValue := parseInt(value); intValue != 0 {
+			return intValue
+		}
+	}
+	return defaultValue
+}
+
+func getEnvOrDefaultFloat32(key string, defaultValue float32) float32 {
+	if value := os.Getenv(key); value != "" {
+		// Parse float32 from string
+		if floatValue := parseFloat32(value); floatValue != 0 {
+			return floatValue
+		}
+	}
+	return defaultValue
+}
+
+func parseInt(s string) int {
+	var result int
+	fmt.Sscanf(s, "%d", &result)
+	return result
+}
+
+func parseFloat32(s string) float32 {
+	var result float32
+	fmt.Sscanf(s, "%f", &result)
+	return result
 }
