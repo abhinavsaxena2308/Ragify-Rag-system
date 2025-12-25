@@ -5,8 +5,7 @@
 
 @layer base {
   body {
-    background-color: black;
-    color: white;
+    @apply bg-gray-900 text-white;
     font-family: 'Inter', system-ui, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
@@ -14,70 +13,50 @@
   html {
     scroll-behavior: smooth;
   }
+  
+  * {
+    box-sizing: border-box;
+  }
 }
 
 @layer components {
   .btn-primary {
-    background: linear-gradient(to right, #DC143C, #b91c1c);
-    color: white;
-    font-weight: 600;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
-    transition: all 0.2s;
-    transform: scale(1);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  }
-  
-  .btn-primary:hover {
-    background: linear-gradient(to right, #b91c1c, #991b1b);
-    transform: scale(1.05);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    @apply bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-200 shadow-lg hover:from-red-700 hover:to-red-800;
   }
   
   .btn-secondary {
-    background-color: #1f2937;
-    color: white;
-    font-weight: 500;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
-    transition: all 0.2s;
-    border: 1px solid #4b5563;
-  }
-  
-  .btn-secondary:hover {
-    background-color: #374151;
-    border-color: #DC143C;
+    @apply bg-gray-800 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 border border-gray-700 hover:bg-gray-700;
   }
   
   .card {
-    background-color: #111827;
-    border: 1px solid #1f2937;
-    border-radius: 0.75rem;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    transition: all 0.3s;
+    @apply bg-gray-800 border border-gray-700 rounded-xl shadow-lg transition-all duration-300;
   }
   
   .card:hover {
-    box-shadow: 0 25px 50px -12px rgba(220, 20, 60, 0.25);
+    @apply shadow-xl border-red-500;
   }
   
   .gradient-text {
-    background: linear-gradient(to right, #ef4444, #DC143C);
+    background: linear-gradient(to right, #ef4444, #dc2626);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
   
   .nav-link {
-    color: #d1d5db;
-    font-weight: 500;
-    transition: all 0.2s;
-    transform: scale(1);
+    @apply text-gray-400 font-medium transition-all duration-200;
   }
   
   .nav-link:hover {
-    color: #DC143C;
-    transform: scale(1.05);
+    @apply text-white;
+  }
+  
+  .glass-effect {
+    @apply bg-gray-800/50 backdrop-blur-sm border border-gray-700;
+  }
+  
+  .glass-effect-dark {
+    @apply bg-gray-900/50 backdrop-blur-sm border border-gray-700;
   }
 }
 
@@ -118,5 +97,23 @@
   
   .glow-red {
     box-shadow: 0 0 20px rgba(220, 20, 60, 0.3);
+  }
+  
+  /* Custom scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #1f2937;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #4b5563;
+    border-radius: 3px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
   }
 }

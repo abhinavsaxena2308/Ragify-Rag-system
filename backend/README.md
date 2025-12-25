@@ -51,6 +51,25 @@ backend/
      ```bash
      go run migrate.go
      ```
+   - Option 3: Use the automated setup script (Windows)
+     ```powershell
+     # For PowerShell users
+     ./setup_db.ps1
+     # Or for Command Prompt users
+     setup_db.bat
+     ```
+   - Option 4: Use the combined database creation and migration script (Windows)
+     ```powershell
+     # For PowerShell users
+     ./create_db_and_migrate.ps1
+     ```
+   - Option 5: Terminal-based setup (Cross-platform)
+     ```bash
+     # For Linux/Mac users
+     ./setup_postgres.sh
+     # For Windows users
+     setup_postgres.bat
+     ```
 
 3. **Installation**
    ```bash
