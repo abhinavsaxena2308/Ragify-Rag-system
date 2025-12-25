@@ -1,10 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  body {
+    background-color: black;
+    color: white;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    background-color: #dc2626;
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+    transform: scale(1);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .btn-primary:hover {
+    background-color: #b91c1c;
+    transform: scale(1.05);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .btn-secondary {
+    background-color: #1f2937;
+    color: white;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+    border: 1px solid #4b5563;
+  }
+  
+  .btn-secondary:hover {
+    background-color: #374151;
+    border-color: #dc2626;
+  }
+  
+  .card {
+    background-color: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 0.75rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    transition: all 0.3s;
+  }
+  
+  .card:hover {
+    box-shadow: 0 25px 50px -12px rgba(220, 38, 38, 0.25);
+  }
+  
+  .gradient-text {
+    background: linear-gradient(to right, #ef4444, #dc2626);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .nav-link {
+    color: #d1d5db;
+    font-weight: 500;
+    transition: all 0.2s;
+    transform: scale(1);
+  }
+  
+  .nav-link:hover {
+    color: #ef4444;
+    transform: scale(1.05);
+  }
+}
+
 @layer utilities {
   .animate-fadeIn {
-    animation: fadeIn 0.3s ease-out;
+    animation: fadeIn 0.5s ease-out;
   }
   
   @keyframes fadeIn {
@@ -31,5 +110,13 @@
       opacity: 0;
       transform: translateY(-10px);
     }
+  }
+  
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+  
+  .glow-red {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
   }
 }

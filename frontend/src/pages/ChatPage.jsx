@@ -107,18 +107,18 @@ const ChatPage = () => {
 
   return (
     <div className="flex flex-col h-[calc(100vh-200px)] max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold text-gray-900">Document Q&A Chat</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+        <h1 className="text-2xl font-bold text-black">Document Q&A Chat</h1>
         <button
           onClick={() => navigate('/upload')}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 text-sm"
+          className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 text-sm"
         >
           Upload Documents
         </button>
       </div>
       
       {/* Chat messages container */}
-      <div className="flex-grow overflow-y-auto mb-4 pr-2">
+      <div className="flex-grow overflow-y-auto mb-4 pr-2 bg-gray-50 rounded-lg p-4">
         <div className="space-y-2">
           {messages.map((message) => (
             <ChatMessage
@@ -135,14 +135,14 @@ const ChatPage = () => {
       {/* Input area */}
       <form onSubmit={handleSubmit} className="mt-auto">
         <div className="flex flex-col">
-          <div className="flex rounded-lg border border-gray-300 overflow-hidden focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500">
+          <div className="flex rounded-lg border border-gray-300 overflow-hidden focus-within:ring-2 focus-within:ring-red-500 focus-within:border-red-500 bg-white shadow-sm">
             <textarea
               ref={inputRef}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ask a question about your documents..."
-              className="flex-grow min-h-[60px] max-h-32 px-4 py-2 resize-none focus:outline-none"
+              className="flex-grow min-h-[60px] max-h-32 px-4 py-2 resize-none focus:outline-none border-0 focus:ring-0"
               disabled={isLoading}
               rows={1}
             />
@@ -152,14 +152,14 @@ const ChatPage = () => {
               className={`self-end m-2 px-4 py-2 rounded-md flex items-center justify-center ${
                 isLoading || !inputValue.trim()
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                  : 'bg-red-600 text-white hover:bg-red-700'
               }`}
             >
               {isLoading && <LoadingSpinner size="sm" className="mr-2" />}
               {isLoading ? 'Sending...' : 'Send'}
             </button>
           </div>
-          <p className="text-xs text-gray-500 mt-2 text-center">
+          <p className="text-xs text-gray-600 mt-2 text-center">
             Ask questions about your uploaded documents. The AI will reference the relevant sources.
           </p>
         </div>

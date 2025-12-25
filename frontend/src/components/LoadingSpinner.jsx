@@ -11,7 +11,7 @@ const LoadingSpinner = ({ size = 'md', className = '' }) => {
   return (
     <div className={`inline-block ${sizeClasses[size]} ${className}`} role="status">
       <svg
-        className="animate-spin text-current"
+        className="animate-spin text-red-600"
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"

@@ -124,12 +124,12 @@ const FileUpload = forwardRef(
       <div className="w-full">
         {/* File selection area */}
         <div
-          className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+          className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-300 ${
             isDragActive
-              ? 'border-indigo-500 bg-indigo-50'
+              ? 'border-red-500 bg-red-50'
               : error
               ? 'border-red-500 bg-red-50'
-              : 'border-gray-300 hover:border-indigo-400'
+              : 'border-gray-300 hover:border-red-400 bg-gray-50'
           }`}
           onDragEnter={handleDragIn}
           onDragLeave={handleDragOut}
@@ -155,7 +155,7 @@ const FileUpload = forwardRef(
                 ? 'Drop your file here'
                 : 'Drag & drop your file here'}
             </p>
-            <p className="text-gray-500 mb-3">
+            <p className="text-gray-600 mb-3">
               {isProcessing ? 'Please wait...' : 'or click to browse files'}
             </p>
             <p className="text-sm text-gray-500">
@@ -172,14 +172,14 @@ const FileUpload = forwardRef(
 
         {/* Error message */}
         {error && (
-          <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-md">
+          <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-red-600 text-sm">{error}</p>
           </div>
         )}
 
         {/* Selected file preview */}
         {selectedFile && (
-          <div className="mt-4 p-4 bg-white border border-gray-200 rounded-lg flex items-center justify-between">
+          <div className="mt-4 p-4 bg-white border border-gray-200 rounded-lg flex items-center justify-between shadow-sm">
             <div className="flex items-center">
               <div className="text-2xl mr-3">{getFileIcon(selectedFile)}</div>
               <div>
@@ -195,10 +195,10 @@ const FileUpload = forwardRef(
               type="button"
               onClick={handleRemoveFile}
               disabled={isProcessing}
-              className={`ml-4 ${
+              className={`ml-4 px-3 py-1 rounded-md ${
                 isProcessing
-                  ? 'text-gray-400 cursor-not-allowed'
-                  : 'text-red-500 hover:text-red-700'
+                  ? 'text-gray-400 cursor-not-allowed bg-gray-100'
+                  : 'text-white bg-red-600 hover:bg-red-700'
               }`}
             >
               Remove

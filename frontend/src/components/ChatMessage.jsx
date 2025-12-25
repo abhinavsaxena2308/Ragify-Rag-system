@@ -1,4 +1,5 @@
 import React from 'react';
+import LoadingSpinner from './LoadingSpinner';
 
 const ChatMessage = ({ message, isUser, isLoading = false }) => {
   const { text, sender, timestamp, sources = [] } = message;
@@ -15,17 +16,15 @@ const ChatMessage = ({ message, isUser, isLoading = false }) => {
       <div
         className={`max-w-[85%] md:max-w-[75%] rounded-2xl px-4 py-3 ${
           isUser
-            ? 'bg-indigo-600 text-white rounded-tr-none'
-            : 'bg-gray-100 text-gray-800 rounded-tl-none'
+            ? 'bg-red-600 text-white rounded-tr-none shadow-md'
+            : 'bg-white text-gray-800 rounded-tl-none shadow-md border border-gray-200'
         }`}
       >
         {/* Message content */}
         <div className="whitespace-pre-wrap break-words">
           {isLoading ? (
             <div className="flex items-center">
-              <div className="h-2 w-2 bg-white rounded-full mr-1 animate-bounce"></div>
-              <div className="h-2 w-2 bg-white rounded-full mr-1 animate-bounce delay-75"></div>
-              <div className="h-2 w-2 bg-white rounded-full animate-bounce delay-150"></div>
+              <LoadingSpinner size="sm" className={isUser ? 'text-white' : 'text-gray-800'} />
             </div>
           ) : (
             text
@@ -33,14 +32,17 @@ const ChatMessage = ({ message, isUser, isLoading = false }) => {
         </div>
 
         {/* Timestamp */}
-        <div className={`text-xs mt-1 ${isUser ? 'text-indigo-200' : 'text-gray-500'}`}>
+        <div className={`text-xs mt-1 ${isUser ? 'text-red-200' : 'text-gray-500'}`}>
           {timestamp && !isLoading ? formatTime(timestamp) : ''}
         </div>
 
         {/* Sources section for AI responses */}
         {!isUser && !isLoading && sources && sources.length > 0 && (
-          <div className="mt-2 pt-2 border-t border-gray-300 border-opacity-30">
-            <p className="text-xs font-medium text-gray-600 mb-1">Sources:</p>
+          <div className="mt-2 pt-2 border-t border-gray-200">
+            <p className="text-xs font-medium text-gray-600 mb-1 flex items-center">
+              <span className="mr-1">📄</span>
+              Sources:
+            </p>
             <ul className="text-xs text-gray-500 space-y-1">
               {sources.map((source, index) => (
                 <li key={index} className="truncate">

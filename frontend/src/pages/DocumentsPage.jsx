@@ -93,13 +93,13 @@ const DocumentsPage = () => {
   
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Documents</h1>
+      <h1 className="text-2xl font-bold text-black mb-6">Documents</h1>
       
-      <div className="mb-6 bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-lg font-medium text-gray-900 mb-3">Upload New Document</h2>
-        <div className="flex items-center space-x-4">
-          <label className={`bg-indigo-600 text-white px-4 py-2 rounded-md cursor-pointer ${uploading ? 'opacity-75 cursor-not-allowed' : 'hover:bg-indigo-700'}`}>
-            {uploading && <LoadingSpinner size="sm" className="mr-2 inline-block" />}
+      <div className="mb-6 bg-white rounded-lg shadow-xl border border-gray-200 p-6">
+        <h2 className="text-lg font-medium text-black mb-3">Upload New Document</h2>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+          <label className={`bg-red-600 text-white px-4 py-2 rounded-md cursor-pointer flex items-center ${uploading ? 'opacity-75 cursor-not-allowed' : 'hover:bg-red-700'}`}>
+            {uploading && <LoadingSpinner size="sm" className="mr-2" />}
             {uploading ? 'Uploading...' : 'Choose File'}
             <input 
               type="file" 
@@ -109,16 +109,16 @@ const DocumentsPage = () => {
               disabled={uploading}
             />
           </label>
-          <span className="text-gray-500 text-sm">Supported formats: PDF, DOC, DOCX, TXT, XLS, XLSX, PPT, PPTX</span>
+          <span className="text-gray-600 text-sm">Supported formats: PDF, DOC, DOCX, TXT, XLS, XLSX, PPT, PPTX</span>
         </div>
       </div>
       
       <div>
-        <h2 className="text-lg font-medium text-gray-900 mb-4">Your Documents</h2>
+        <h2 className="text-lg font-medium text-black mb-4">Your Documents</h2>
         {loading ? (
           <div className="text-center py-12">
             <LoadingSpinner size="lg" className="mx-auto" />
-            <p className="mt-4 text-gray-500">Loading documents...</p>
+            <p className="mt-4 text-gray-600">Loading documents...</p>
           </div>
         ) : documents.length === 0 ? (
           <EmptyState
@@ -126,7 +126,7 @@ const DocumentsPage = () => {
             description="Upload your first document to get started with RAGify. Your documents will appear here once uploaded."
             icon="📄"
             actionButton={
-              <label className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer">
+              <label className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 cursor-pointer">
                 Upload Document
                 <input 
                   type="file" 

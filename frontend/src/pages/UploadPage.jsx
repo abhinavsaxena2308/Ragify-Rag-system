@@ -62,9 +62,9 @@ const UploadPage = () => {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Upload Document</h1>
+      <h1 className="text-2xl font-bold text-black mb-6">Upload Document</h1>
       
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white rounded-lg shadow-xl border border-gray-200 p-6">
         <FileUpload 
           ref={fileUploadRef}
           onFileSelect={handleFileSelect}
@@ -81,7 +81,7 @@ const UploadPage = () => {
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2.5">
               <div
-                className="bg-indigo-600 h-2.5 rounded-full transition-all duration-300"
+                className="bg-red-600 h-2.5 rounded-full transition-all duration-300"
                 style={{ width: `${uploadProgress}%` }}
               ></div>
             </div>
@@ -96,7 +96,7 @@ const UploadPage = () => {
             className={`px-4 py-2 rounded-md text-white font-medium flex items-center justify-center ${
               isUploading || !selectedFile
                 ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-indigo-600 hover:bg-indigo-700'
+                : 'bg-red-600 hover:bg-red-700'
             }`}
           >
             {isUploading && <LoadingSpinner size="sm" className="mr-2" />}
@@ -114,9 +114,12 @@ const UploadPage = () => {
       </div>
 
       {/* Info section */}
-      <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="font-medium text-blue-800 mb-2">About Document Upload</h3>
-        <ul className="text-blue-700 text-sm list-disc pl-5 space-y-1">
+      <div className="mt-8 bg-gradient-to-r from-red-50 to-red-100 border border-red-200 rounded-lg p-4">
+        <h3 className="font-medium text-red-800 mb-2 flex items-center">
+          <span className="mr-2">ℹ️</span>
+          About Document Upload
+        </h3>
+        <ul className="text-red-700 text-sm list-disc pl-5 space-y-1">
           <li>Uploaded documents will be processed using RAG technology for intelligent Q&A</li>
           <li>Your documents are processed securely and not stored permanently</li>
           <li>For best results, use documents with clear text content</li>
