@@ -169,6 +169,73 @@ func (h *DocumentHandler) GetDocument(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
+// UpdateDocument updates an existing document
+func (h *DocumentHandler) UpdateDocument(c echo.Context) error {
+	// Get document ID from URL parameter
+	idParam := c.Param("id")
+	documentID, err := strconv.ParseUint(idParam, 10, 32)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Error:   "Invalid document ID",
+			Message: "Document ID must be a valid number",
+		})
+	}
+
+	// Parse request body
+	var updateReq models.UpdateDocumentRequest
+	if err := c.Bind(&updateReq); err != nil {
+		return c.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Error:   "Invalid request body",
+			Message: err.Error(),
+		})
+	}
+
+	// Get existing document
+	document, err := h.documentService.GetDocument(uint(documentID))
+	if err != nil {
+		if err.Error() == "document not found" {
+			return c.JSON(http.StatusNotFound, models.ErrorResponse{
+				Error:   "Document not found",
+				Message: fmt.Sprintf("Document with ID %s not found", idParam),
+			})
+		}
+		return c.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Error:   "Failed to retrieve document",
+			Message: err.Error(),
+		})
+	}
+
+	// Update fields if provided
+	if updateReq.Filename != nil {
+		document.Filename = *updateReq.Filename
+	}
+	if updateReq.OriginalName != nil {
+		document.OriginalName = *updateReq.OriginalName
+	}
+
+	// Update document in database
+	err = h.documentService.UpdateDocument(document)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Error:   "Failed to update document",
+			Message: err.Error(),
+		})
+	}
+
+	// Prepare response
+	response := models.DocumentResponse{
+		ID:           document.ID,
+		Filename:     document.Filename,
+		OriginalName: document.OriginalName,
+		ContentType:  document.ContentType,
+		Size:         document.Size,
+		PageCount:    document.PageCount,
+		CreatedAt:    document.CreatedAt.Format("2006-01-02 15:04:05"),
+	}
+
+	return c.JSON(http.StatusOK, response)
+}
+
 // DeleteDocument removes a document
 func (h *DocumentHandler) DeleteDocument(c echo.Context) error {
 	// Get document ID from URL parameter

@@ -1,18 +1,22 @@
 package services
 
 import (
+	"context"
 	"ragify-backend/internal/models"
+	"time"
 
 	"gorm.io/gorm"
 )
 
 type ChatService struct {
-	DB *gorm.DB
+	DB         *gorm.DB
+	RAGService *RAGService
 }
 
-func NewChatService(db *gorm.DB) *ChatService {
+func NewChatService(db *gorm.DB, ragService *RAGService) *ChatService {
 	return &ChatService{
-		DB: db,
+		DB:         db,
+		RAGService: ragService,
 	}
 }
 
@@ -37,13 +41,45 @@ func (s *ChatService) GetMessagesBySessionID(sessionID string) ([]models.Message
 }
 
 func (s *ChatService) AskQuestion(sessionID, query string, documentIDs []uint) (string, []string, error) {
-	// This is a placeholder implementation
-	// In a real implementation, this would:
-	// 1. Retrieve relevant document chunks using FAISS
-	// 2. Format the context for the LLM
-	// 3. Query the LLM for a response
-	// 4. Store the conversation in the database
+	// Use the RAG service to process the question
+	req := &models.RAGRequest{
+		Question:  query,
+		SessionID: sessionID,
+	}
 
-	// For now, return a sample response
-	return "This is a sample response to your query: " + query, []string{"document1.pdf", "document2.pdf"}, nil
+	ragResponse, err := s.RAGService.ProcessQuestion(context.Background(), req)
+	if err != nil {
+		return "", nil, err
+	}
+
+	response := ragResponse.Answer
+	var sourceDocuments []string
+	for _, source := range ragResponse.Sources {
+		sourceDocuments = append(sourceDocuments, source.DocumentName)
+	}
+
+	// Store the conversation in the database
+	// Create user message
+	userMessage := &models.Message{
+		SessionID: sessionID,
+		Content:   query,
+		Role:      "user",
+		Timestamp: time.Now(),
+	}
+	if err := s.CreateMessage(userMessage); err != nil {
+		return "", nil, err
+	}
+
+	// Create AI message
+	aiMessage := &models.Message{
+		SessionID: sessionID,
+		Content:   response,
+		Role:      "assistant",
+		Timestamp: time.Now(),
+	}
+	if err := s.CreateMessage(aiMessage); err != nil {
+		return "", nil, err
+	}
+
+	return response, sourceDocuments, nil
 }

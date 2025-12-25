@@ -31,6 +31,8 @@ const ChatPage = () => {
     e.preventDefault();
     if (!inputValue.trim() || isLoading) return;
 
+    let aiMessageId = null;
+
     try {
       // Add user message to the chat
       const userMessage = {
@@ -45,7 +47,7 @@ const ChatPage = () => {
       setIsLoading(true);
 
       // Add a temporary loading message for AI response
-      const aiMessageId = Date.now() + 1;
+      aiMessageId = Date.now() + 1;
       const loadingMessage = {
         id: aiMessageId,
         text: 'Thinking...',

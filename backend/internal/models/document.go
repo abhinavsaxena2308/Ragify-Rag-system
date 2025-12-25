@@ -49,6 +49,12 @@ type UploadResponse struct {
 	Document   DocumentResponse `json:"document"`
 }
 
+// UpdateDocumentRequest represents the request body for updating a document
+type UpdateDocumentRequest struct {
+	Filename     *string `json:"filename,omitempty"`
+	OriginalName *string `json:"original_name,omitempty"`
+}
+
 // ErrorResponse represents an error response
 type ErrorResponse struct {
 	Error   string `json:"error"`

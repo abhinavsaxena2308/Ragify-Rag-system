@@ -31,12 +31,16 @@ CREATE TABLE users (
 -- Create documents table
 CREATE TABLE documents (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    file_name VARCHAR(500) NOT NULL,
-    size BIGINT,
-    type VARCHAR(100),
-    path TEXT NOT NULL,
-    uploaded TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    filename VARCHAR(255) NOT NULL,
+    original_name VARCHAR(500) NOT NULL,
+    size BIGINT NOT NULL,
+    content_type VARCHAR(100) NOT NULL,
+    file_path TEXT NOT NULL,
+    text_content TEXT,
+    page_count INTEGER NOT NULL DEFAULT 1,
+    extracted_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     user_id INTEGER REFERENCES users(id) ON DELETE SET NULL
 );
 
@@ -84,8 +88,8 @@ INSERT INTO users (email, password, name) VALUES
 ON CONFLICT (email) DO NOTHING;
 
 -- Insert a sample document
-INSERT INTO documents (name, file_name, size, type, path, user_id) VALUES
-('Sample Document', 'sample.pdf', 102400, 'application/pdf', '/uploads/sample.pdf', 1)
+INSERT INTO documents (filename, original_name, size, content_type, file_path, user_id) VALUES
+('sample.pdf', 'Sample Document', 102400, 'application/pdf', '/uploads/sample.pdf', 1)
 ON CONFLICT (id) DO NOTHING;
 
 -- Insert a sample chat session
@@ -118,6 +122,7 @@ $$ language 'plpgsql';
 
 -- Create triggers to automatically update the updated_at column
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_documents_updated_at BEFORE UPDATE ON documents FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_chat_sessions_updated_at BEFORE UPDATE ON chat_sessions FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- End of script
