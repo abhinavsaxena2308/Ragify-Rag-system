@@ -2,12 +2,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ChatMessage from '../components/ChatMessage';
 import chatService from '../services/chatService';
+import { useToast } from '../components/Toast';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const ChatPage = () => {
   const [messages, setMessages] = useState([
     {
       id: 1,
-      text: 'Hello! I\'m your RAGify assistant. Upload some documents and ask me questions about them.',
+      text: "Hello! I'm your RAGify assistant. Upload some documents and ask me questions about them.",
       sender: 'ai',
       timestamp: new Date(),
       sources: []
@@ -15,7 +17,7 @@ const ChatPage = () => {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const { addToast } = useToast();
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const navigate = useNavigate();
@@ -45,7 +47,6 @@ const ChatPage = () => {
       setMessages(prev => [...prev, userMessage]);
       setInputValue('');
       setIsLoading(true);
-      setError(null);
 
       // Add a temporary loading message for AI response
       const aiMessageId = Date.now() + 1;
@@ -77,11 +78,10 @@ const ChatPage = () => {
           msg.id === aiMessageId ? aiResponse : msg
         )
       );
-      setIsLoading(false);
 
     } catch (err) {
       // Remove the loading message
-      setMessages(prev => prev.filter(msg => !msg.isLoading));
+      setMessages(prev => prev.filter(msg => msg.id !== aiMessageId));
       
       const errorMessage = {
         id: Date.now(),
@@ -92,7 +92,8 @@ const ChatPage = () => {
       };
       
       setMessages(prev => [...prev, errorMessage]);
-      setError(err.message);
+      addToast(err.message || 'An error occurred while processing your question', 'error');
+    } finally {
       setIsLoading(false);
     }
   };
@@ -127,13 +128,6 @@ const ChatPage = () => {
               isLoading={message.isLoading}
             />
           ))}
-          {error && (
-            <div className="flex justify-start mb-4">
-              <div className="max-w-[85%] md:max-w-[75%] bg-red-100 text-red-800 rounded-2xl px-4 py-3 rounded-tl-none">
-                Error: {error}
-              </div>
-            </div>
-          )}
         </div>
         <div ref={messagesEndRef} />
       </div>
@@ -155,12 +149,13 @@ const ChatPage = () => {
             <button
               type="submit"
               disabled={isLoading || !inputValue.trim()}
-              className={`self-end m-2 px-4 py-2 rounded-md ${
+              className={`self-end m-2 px-4 py-2 rounded-md flex items-center justify-center ${
                 isLoading || !inputValue.trim()
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   : 'bg-indigo-600 text-white hover:bg-indigo-700'
               }`}
             >
+              {isLoading && <LoadingSpinner size="sm" className="mr-2" />}
               {isLoading ? 'Sending...' : 'Send'}
             </button>
           </div>

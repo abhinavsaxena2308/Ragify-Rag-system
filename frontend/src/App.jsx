@@ -5,19 +5,25 @@ import HomePage from './pages/HomePage';
 import DocumentsPage from './pages/DocumentsPage';
 import ChatPage from './pages/ChatPage';
 import UploadPage from './pages/UploadPage';
+import { ToastProvider } from './components/Toast';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
   return (
-    <Router>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/documents" element={<DocumentsPage />} />
-          <Route path="/chat" element={<ChatPage />} />
-          <Route path="/upload" element={<UploadPage />} />
-        </Routes>
-      </Layout>
-    </Router>
+    <ToastProvider>
+      <Router>
+        <ErrorBoundary>
+          <Layout>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/documents" element={<DocumentsPage />} />
+              <Route path="/chat" element={<ChatPage />} />
+              <Route path="/upload" element={<UploadPage />} />
+            </Routes>
+          </Layout>
+        </ErrorBoundary>
+      </Router>
+    </ToastProvider>
   );
 }
 

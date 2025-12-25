@@ -1,33 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import FileUpload from '../components/FileUpload';
 import uploadService from '../services/uploadService';
+import { useToast } from '../components/Toast';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const UploadPage = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadStatus, setUploadStatus] = useState(null); // 'success', 'error', or null
-  const [uploadMessage, setUploadMessage] = useState('');
+  const { addToast } = useToast();
+  const fileUploadRef = useRef(null);
   const navigate = useNavigate();
 
   const handleFileSelect = (file) => {
     setSelectedFile(file);
     setUploadProgress(0);
-    setUploadStatus(null);
-    setUploadMessage('');
   };
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      setUploadStatus('error');
-      setUploadMessage('Please select a file first');
+      addToast('Please select a file first', 'error');
       return;
     }
 
     setIsUploading(true);
-    setUploadStatus(null);
-    setUploadMessage('');
+    
+    // Set the file upload component to processing state
+    if (fileUploadRef.current && fileUploadRef.current.setProcessingState) {
+      fileUploadRef.current.setProcessingState(true);
+    }
 
     try {
       // Use the new upload service with progress tracking
@@ -36,18 +38,21 @@ const UploadPage = () => {
       });
 
       setUploadProgress(100);
-      setUploadStatus('success');
-      setUploadMessage('File uploaded successfully!');
+      addToast('File uploaded successfully!', 'success');
       
-      // Wait a moment then navigate to chat
+      // Navigate to chat after a short delay
       setTimeout(() => {
         navigate('/chat');
       }, 1500);
 
     } catch (error) {
-      setUploadStatus('error');
-      setUploadMessage(error.message || 'Upload failed');
+      addToast(error.message || 'Upload failed', 'error');
+    } finally {
       setIsUploading(false);
+      // Reset the file upload component processing state
+      if (fileUploadRef.current && fileUploadRef.current.setProcessingState) {
+        fileUploadRef.current.setProcessingState(false);
+      }
     }
   };
 
@@ -61,6 +66,7 @@ const UploadPage = () => {
       
       <div className="bg-white rounded-lg shadow-md p-6">
         <FileUpload 
+          ref={fileUploadRef}
           onFileSelect={handleFileSelect}
           allowedTypes={['.pdf', '.docx', '.txt']}
           maxSize={10 * 1024 * 1024} // 10MB
@@ -82,30 +88,18 @@ const UploadPage = () => {
           </div>
         )}
 
-        {/* Status messages */}
-        {uploadStatus === 'success' && (
-          <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
-            <p className="text-green-600">{uploadMessage}</p>
-          </div>
-        )}
-        
-        {uploadStatus === 'error' && (
-          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-red-600">{uploadMessage}</p>
-          </div>
-        )}
-
         {/* Action buttons */}
         <div className="mt-6 flex flex-col sm:flex-row gap-3">
           <button
             onClick={handleUpload}
             disabled={isUploading || !selectedFile}
-            className={`px-4 py-2 rounded-md text-white font-medium ${
+            className={`px-4 py-2 rounded-md text-white font-medium flex items-center justify-center ${
               isUploading || !selectedFile
                 ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-indigo-600 hover:bg-indigo-700'
             }`}
           >
+            {isUploading && <LoadingSpinner size="sm" className="mr-2" />}
             {isUploading ? 'Uploading...' : 'Upload Document'}
           </button>
           
