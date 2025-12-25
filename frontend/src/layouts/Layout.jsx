@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Layout = ({ children }) => {
   return (
@@ -11,15 +12,18 @@ const Layout = ({ children }) => {
               <h1 className="text-xl font-bold text-indigo-600">RAGify</h1>
             </div>
             <nav className="flex space-x-4">
-              <a href="/" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">
+              <Link to="/" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">
                 Home
-              </a>
-              <a href="/documents" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">
+              </Link>
+              <Link to="/upload" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">
+                Upload
+              </Link>
+              <Link to="/documents" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">
                 Documents
-              </a>
-              <a href="/chat" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">
+              </Link>
+              <Link to="/chat" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">
                 Chat
-              </a>
+              </Link>
             </nav>
           </div>
         </div>
