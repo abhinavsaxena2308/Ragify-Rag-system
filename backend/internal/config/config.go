@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -31,10 +32,16 @@ type FAISSConfig struct {
 }
 
 type LLMConfig struct {
-	Provider string
-	Endpoint string
-	APIKey   string
-	Model    string
+	Provider    string   `json:"provider"`
+	Endpoint    string   `json:"endpoint"`
+	APIKey      string   `json:"api_key"`
+	Model       string   `json:"model"`
+	Fallback    []string `json:"fallback"`
+	Timeout     int      `json:"timeout"`
+	MaxTokens   int      `json:"max_tokens"`
+	Temperature float64  `json:"temperature"`
+	RetryCount  int      `json:"retry_count"`
+	HealthCheck bool     `json:"health_check"`
 }
 
 type RAGConfig struct {
@@ -64,10 +71,16 @@ func LoadConfig() *Config {
 			IndexPath: getEnvOrDefault("FAISS_INDEX_PATH", "./data/faiss_index"),
 		},
 		LLM: LLMConfig{
-			Provider: getEnvOrDefault("LLM_PROVIDER", "ollama"),
-			Endpoint: getEnvOrDefault("LLM_ENDPOINT", "http://localhost:11434"),
-			APIKey:   getEnvOrDefault("LLM_API_KEY", ""),
-			Model:    getEnvOrDefault("LLM_MODEL", "llama2"),
+			Provider:    getEnvOrDefault("LLM_PROVIDER", "ollama"),
+			Endpoint:    getEnvOrDefault("LLM_ENDPOINT", "http://localhost:11434"),
+			APIKey:      getEnvOrDefault("LLM_API_KEY", ""),
+			Model:       getEnvOrDefault("LLM_MODEL", "llama2"),
+			Fallback:    getEnvSlice("LLM_FALLBACK", []string{}),
+			Timeout:     getEnvOrDefaultInt("LLM_TIMEOUT", 120),
+			MaxTokens:   getEnvOrDefaultInt("LLM_MAX_TOKENS", 4000),
+			Temperature: getEnvOrDefaultFloat64("LLM_TEMPERATURE", 0.1),
+			RetryCount:  getEnvOrDefaultInt("LLM_RETRY_COUNT", 3),
+			HealthCheck: getEnvOrDefaultBool("LLM_HEALTH_CHECK", true),
 		},
 		RAG: RAGConfig{
 			RetrievalTopK:       getEnvOrDefaultInt("RAG_TOP_K", 5),
@@ -105,6 +118,16 @@ func getEnvOrDefaultFloat32(key string, defaultValue float32) float32 {
 	return defaultValue
 }
 
+func getEnvOrDefaultFloat64(key string, defaultValue float64) float64 {
+	if value := os.Getenv(key); value != "" {
+		// Parse float64 from string
+		if floatValue := parseFloat64(value); floatValue != 0 {
+			return floatValue
+		}
+	}
+	return defaultValue
+}
+
 func parseInt(s string) int {
 	var result int
 	fmt.Sscanf(s, "%d", &result)
@@ -115,4 +138,30 @@ func parseFloat32(s string) float32 {
 	var result float32
 	fmt.Sscanf(s, "%f", &result)
 	return result
+}
+
+func parseFloat64(s string) float64 {
+	var result float64
+	fmt.Sscanf(s, "%lf", &result)
+	return result
+}
+
+func getEnvSlice(key string, defaultValue []string) []string {
+	if value := os.Getenv(key); value != "" {
+		// Split by comma
+		slice := strings.Split(value, ",")
+		// Trim whitespace
+		for i, item := range slice {
+			slice[i] = strings.TrimSpace(item)
+		}
+		return slice
+	}
+	return defaultValue
+}
+
+func getEnvOrDefaultBool(key string, defaultValue bool) bool {
+	if value := os.Getenv(key); value != "" {
+		return strings.ToLower(value) == "true"
+	}
+	return defaultValue
 }
