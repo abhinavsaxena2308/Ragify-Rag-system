@@ -37,7 +37,7 @@ const ToastProvider = ({ children }) => {
     <ToastContext.Provider value={value}>
       {children}
       {toasts.length > 0 && createPortal(
-        <div className="fixed top-4 right-4 z-50 space-y-2">
+        <div className="fixed top-4 right-4 z-50 space-y-3">
           {toasts.map((toast) => (
             <ToastItem key={toast.id} toast={toast} removeToast={removeToast} />
           ))}
@@ -54,14 +54,14 @@ const ToastItem = ({ toast, removeToast }) => {
   const getToastStyle = () => {
     switch (type) {
       case 'success':
-        return 'bg-green-500 text-white';
+        return 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg';
       case 'error':
-        return 'bg-red-500 text-white';
+        return 'bg-gradient-to-r from-[#DC143C] to-red-700 text-white shadow-lg';
       case 'warning':
-        return 'bg-yellow-500 text-gray-900';
+        return 'bg-gradient-to-r from-amber-600 to-orange-600 text-white shadow-lg';
       case 'info':
       default:
-        return 'bg-blue-500 text-white';
+        return 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg';
     }
   };
 
@@ -81,14 +81,14 @@ const ToastItem = ({ toast, removeToast }) => {
 
   return (
     <div
-      className={`flex items-center p-4 rounded-lg shadow-lg max-w-xs ${getToastStyle()} animate-fadeIn`}
+      className={`flex items-center p-4 rounded-xl shadow-xl max-w-xs ${getToastStyle()} animate-fadeIn backdrop-blur-sm border border-gray-700`}
       role="alert"
     >
-      <span className="mr-2 text-lg">{getToastIcon()}</span>
-      <span className="flex-grow">{message}</span>
+      <span className="mr-3 text-lg">{getToastIcon()}</span>
+      <span className="flex-grow font-medium">{message}</span>
       <button
         onClick={() => removeToast(id)}
-        className="ml-4 text-lg hover:opacity-80 focus:outline-none"
+        className="ml-4 text-lg hover:opacity-80 focus:outline-none transition-opacity duration-200"
         aria-label="Close toast"
       >
         ×

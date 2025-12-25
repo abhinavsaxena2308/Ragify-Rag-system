@@ -18,7 +18,7 @@
 
 @layer components {
   .btn-primary {
-    background-color: #dc2626;
+    background: linear-gradient(to right, #DC143C, #b91c1c);
     color: white;
     font-weight: 600;
     padding: 0.75rem 1.5rem;
@@ -29,7 +29,7 @@
   }
   
   .btn-primary:hover {
-    background-color: #b91c1c;
+    background: linear-gradient(to right, #b91c1c, #991b1b);
     transform: scale(1.05);
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
   }
@@ -46,7 +46,7 @@
   
   .btn-secondary:hover {
     background-color: #374151;
-    border-color: #dc2626;
+    border-color: #DC143C;
   }
   
   .card {
@@ -58,11 +58,11 @@
   }
   
   .card:hover {
-    box-shadow: 0 25px 50px -12px rgba(220, 38, 38, 0.25);
+    box-shadow: 0 25px 50px -12px rgba(220, 20, 60, 0.25);
   }
   
   .gradient-text {
-    background: linear-gradient(to right, #ef4444, #dc2626);
+    background: linear-gradient(to right, #ef4444, #DC143C);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -76,7 +76,7 @@
   }
   
   .nav-link:hover {
-    color: #ef4444;
+    color: #DC143C;
     transform: scale(1.05);
   }
 }
@@ -117,6 +117,6 @@
   }
   
   .glow-red {
-    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+    box-shadow: 0 0 20px rgba(220, 20, 60, 0.3);
   }
 }

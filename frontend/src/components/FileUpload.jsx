@@ -126,10 +126,10 @@ const FileUpload = forwardRef(
         <div
           className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-300 ${
             isDragActive
-              ? 'border-red-500 bg-red-50'
+              ? 'border-[#DC143C] bg-gradient-to-br from-[#DC143C]/10 to-red-900/20'
               : error
-              ? 'border-red-500 bg-red-50'
-              : 'border-gray-300 hover:border-red-400 bg-gray-50'
+              ? 'border-[#DC143C] bg-gradient-to-br from-[#DC143C]/10 to-red-900/20'
+              : 'border-gray-600 hover:border-[#DC143C] bg-gradient-to-br from-gray-800 to-gray-900'
           }`}
           onDragEnter={handleDragIn}
           onDragLeave={handleDragOut}
@@ -147,18 +147,18 @@ const FileUpload = forwardRef(
           />
 
           <div className="flex flex-col items-center justify-center">
-            <div className="text-4xl mb-3">📁</div>
-            <p className="text-lg font-medium text-gray-700 mb-1">
+            <div className="text-4xl mb-3 text-white">📁</div>
+            <p className="text-lg font-medium text-white mb-1">
               {isProcessing
                 ? 'Processing...'
                 : isDragActive
                 ? 'Drop your file here'
                 : 'Drag & drop your file here'}
             </p>
-            <p className="text-gray-600 mb-3">
+            <p className="text-gray-300 mb-3">
               {isProcessing ? 'Please wait...' : 'or click to browse files'}
             </p>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-400">
               Supported formats: {allowedTypes.join(', ')} | Max size:{' '}
               {maxSize / (1024 * 1024)}MB
             </p>
@@ -172,21 +172,21 @@ const FileUpload = forwardRef(
 
         {/* Error message */}
         {error && (
-          <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-600 text-sm">{error}</p>
+          <div className="mt-3 p-3 bg-gradient-to-r from-[#DC143C]/20 to-red-900/30 border border-[#DC143C]/50 rounded-lg backdrop-blur-sm">
+            <p className="text-[#DC143C] text-sm font-medium">{error}</p>
           </div>
         )}
 
         {/* Selected file preview */}
         {selectedFile && (
-          <div className="mt-4 p-4 bg-white border border-gray-200 rounded-lg flex items-center justify-between shadow-sm">
+          <div className="mt-4 p-4 bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-xl flex items-center justify-between shadow-lg">
             <div className="flex items-center">
-              <div className="text-2xl mr-3">{getFileIcon(selectedFile)}</div>
+              <div className="text-2xl mr-3 text-white">{getFileIcon(selectedFile)}</div>
               <div>
-                <p className="font-medium text-gray-900 truncate max-w-xs">
+                <p className="font-medium text-white truncate max-w-xs">
                   {selectedFile.name}
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-400">
                   {formatFileSize(selectedFile.size)}
                 </p>
               </div>
@@ -195,10 +195,10 @@ const FileUpload = forwardRef(
               type="button"
               onClick={handleRemoveFile}
               disabled={isProcessing}
-              className={`ml-4 px-3 py-1 rounded-md ${
+              className={`ml-4 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
                 isProcessing
-                  ? 'text-gray-400 cursor-not-allowed bg-gray-100'
-                  : 'text-white bg-red-600 hover:bg-red-700'
+                  ? 'text-gray-500 cursor-not-allowed bg-gray-700'
+                  : 'text-white bg-gradient-to-r from-[#DC143C] to-red-700 hover:opacity-90'
               }`}
             >
               Remove

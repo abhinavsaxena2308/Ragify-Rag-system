@@ -106,20 +106,28 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-200px)] max-w-4xl mx-auto">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-        <h1 className="text-2xl font-bold text-black">Document Q&A Chat</h1>
+    <div className="flex flex-col h-[calc(100vh-200px)] max-w-4xl mx-auto w-full">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-gradient-to-r from-red-600 to-red-700 rounded-full flex items-center justify-center">
+            <span className="text-white font-bold">AI</span>
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-white">Document Q&A Chat</h1>
+            <p className="text-xs text-gray-400">Powered by RAG technology</p>
+          </div>
+        </div>
         <button
           onClick={() => navigate('/upload')}
-          className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 text-sm"
+          className="bg-gradient-to-r from-red-600 to-red-700 text-white px-4 py-2 rounded-lg hover:from-red-700 hover:to-red-800 text-sm font-medium transition-all duration-200 shadow-md"
         >
           Upload Documents
         </button>
       </div>
       
       {/* Chat messages container */}
-      <div className="flex-grow overflow-y-auto mb-4 pr-2 bg-gray-50 rounded-lg p-4">
-        <div className="space-y-2">
+      <div className="flex-grow overflow-y-auto mb-4 bg-gray-900 rounded-xl p-4 border border-gray-800">
+        <div className="space-y-6 max-w-3xl mx-auto">
           {messages.map((message) => (
             <ChatMessage
               key={message.id}
@@ -135,31 +143,31 @@ const ChatPage = () => {
       {/* Input area */}
       <form onSubmit={handleSubmit} className="mt-auto">
         <div className="flex flex-col">
-          <div className="flex rounded-lg border border-gray-300 overflow-hidden focus-within:ring-2 focus-within:ring-red-500 focus-within:border-red-500 bg-white shadow-sm">
+          <div className="flex rounded-xl border border-gray-700 overflow-hidden focus-within:ring-2 focus-within:ring-red-500 focus-within:border-red-500 bg-gray-800 shadow-lg">
             <textarea
               ref={inputRef}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ask a question about your documents..."
-              className="flex-grow min-h-[60px] max-h-32 px-4 py-2 resize-none focus:outline-none border-0 focus:ring-0"
+              className="flex-grow min-h-[60px] max-h-32 px-4 py-3 resize-none focus:outline-none border-0 focus:ring-0 bg-transparent text-white placeholder-gray-500"
               disabled={isLoading}
               rows={1}
             />
             <button
               type="submit"
               disabled={isLoading || !inputValue.trim()}
-              className={`self-end m-2 px-4 py-2 rounded-md flex items-center justify-center ${
+              className={`self-end m-2 px-4 py-2 rounded-lg flex items-center justify-center font-medium transition-all duration-200 ${
                 isLoading || !inputValue.trim()
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-red-600 text-white hover:bg-red-700'
+                  ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 shadow-md'
               }`}
             >
               {isLoading && <LoadingSpinner size="sm" className="mr-2" />}
               {isLoading ? 'Sending...' : 'Send'}
             </button>
           </div>
-          <p className="text-xs text-gray-600 mt-2 text-center">
+          <p className="text-xs text-gray-500 mt-2 text-center">
             Ask questions about your uploaded documents. The AI will reference the relevant sources.
           </p>
         </div>

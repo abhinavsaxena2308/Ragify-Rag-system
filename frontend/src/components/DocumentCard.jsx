@@ -23,19 +23,19 @@ const DocumentCard = ({ document, onDelete }) => {
   };
 
   return (
-    <div className="border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-all duration-300 bg-white">
+    <div className="border border-gray-700 rounded-xl p-4 hover:shadow-xl transition-all duration-300 bg-gray-800 shadow-lg">
       <div className="flex items-start">
         <div className="text-2xl mr-3">{getFileIcon(type)}</div>
         <div className="flex-1">
-          <h3 className="font-medium text-black truncate">{name}</h3>
-          <div className="mt-1 text-sm text-gray-600">
+          <h3 className="font-medium text-white truncate">{name}</h3>
+          <div className="mt-1 text-sm text-gray-400">
             <p>{formatFileSize(size)}</p>
             <p>Uploaded: {new Date(uploadDate).toLocaleDateString()}</p>
           </div>
         </div>
         <button
           onClick={() => onDelete(id)}
-          className="text-red-500 hover:text-red-700 ml-2 transition-colors duration-200"
+          className="text-[#DC143C] hover:text-red-400 ml-2 transition-colors duration-200"
           title="Delete document"
         >
           🗑️

@@ -12,19 +12,20 @@ const ChatMessage = ({ message, isUser, isLoading = false }) => {
   };
 
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
+    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-6`}>
       <div
         className={`max-w-[85%] md:max-w-[75%] rounded-2xl px-4 py-3 ${
           isUser
-            ? 'bg-red-600 text-white rounded-tr-none shadow-md'
-            : 'bg-white text-gray-800 rounded-tl-none shadow-md border border-gray-200'
+            ? 'bg-gradient-to-r from-red-700 to-red-800 text-white rounded-tr-none shadow-lg ml-auto'
+            : 'bg-gray-800 text-gray-100 rounded-tl-none shadow-lg border border-gray-700 mr-auto'
         }`}
+        style={{ minWidth: '200px' }}
       >
         {/* Message content */}
         <div className="whitespace-pre-wrap break-words">
           {isLoading ? (
-            <div className="flex items-center">
-              <LoadingSpinner size="sm" className={isUser ? 'text-white' : 'text-gray-800'} />
+            <div className="flex items-center py-2">
+              <LoadingSpinner size="sm" className={isUser ? 'text-white' : 'text-gray-100'} />
             </div>
           ) : (
             text
@@ -32,21 +33,21 @@ const ChatMessage = ({ message, isUser, isLoading = false }) => {
         </div>
 
         {/* Timestamp */}
-        <div className={`text-xs mt-1 ${isUser ? 'text-red-200' : 'text-gray-500'}`}>
+        <div className={`text-xs mt-2 ${isUser ? 'text-red-300' : 'text-gray-400'}`}>
           {timestamp && !isLoading ? formatTime(timestamp) : ''}
         </div>
 
         {/* Sources section for AI responses */}
         {!isUser && !isLoading && sources && sources.length > 0 && (
-          <div className="mt-2 pt-2 border-t border-gray-200">
-            <p className="text-xs font-medium text-gray-600 mb-1 flex items-center">
-              <span className="mr-1">📄</span>
+          <div className="mt-3 pt-3 border-t border-gray-700">
+            <p className="text-xs font-medium text-gray-300 mb-2 flex items-center">
+              <span className="mr-2 text-red-400">📄</span>
               Sources:
             </p>
-            <ul className="text-xs text-gray-500 space-y-1">
+            <ul className="text-xs text-gray-400 space-y-1">
               {sources.map((source, index) => (
                 <li key={index} className="truncate">
-                  • {source}
+                  <span className="text-red-400">•</span> {source}
                 </li>
               ))}
             </ul>

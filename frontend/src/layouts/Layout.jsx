@@ -10,43 +10,55 @@ const Layout = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-gray-100 flex flex-col">
       {/* Header */}
-      <header className="bg-gray-950 border-b border-gray-800 backdrop-blur-lg bg-opacity-90 sticky top-0 z-50">
+      <header className="bg-gray-900 border-b border-gray-800 backdrop-blur-lg bg-opacity-90 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gradient-to-r from-red-600 to-red-700 rounded-lg flex items-center justify-center shadow-lg">
                 <span className="text-white font-bold text-lg">R</span>
               </div>
-              <h1 className="text-xl font-bold gradient-text">RAGify</h1>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-red-500 to-red-400 bg-clip-text text-transparent">RAGify</h1>
             </div>
             
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-6">
+            <nav className="hidden md:flex space-x-1">
               <Link 
                 to="/" 
-                className="nav-link px-3 py-2"
+                className="nav-link px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-gray-800 hover:text-red-400"
               >
-                Home
+                <span className="flex items-center">
+                  <span className="mr-2">🏠</span>
+                  Home
+                </span>
               </Link>
               <Link 
                 to="/upload" 
-                className="nav-link px-3 py-2"
+                className="nav-link px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-gray-800 hover:text-red-400"
               >
-                Upload
+                <span className="flex items-center">
+                  <span className="mr-2">📤</span>
+                  Upload
+                </span>
               </Link>
               <Link 
                 to="/documents" 
-                className="nav-link px-3 py-2"
+                className="nav-link px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-gray-800 hover:text-red-400"
               >
-                Documents
+                <span className="flex items-center">
+                  <span className="mr-2">📁</span>
+                  Docs
+                </span>
               </Link>
               <Link 
                 to="/chat" 
-                className="nav-link px-3 py-2"
+                className="nav-link px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-gray-800 hover:text-red-400"
               >
-                Chat
+                <span className="flex items-center">
+                  <span className="mr-2">💬</span>
+                  Chat
+                </span>
               </Link>
             </nav>
             
@@ -86,52 +98,66 @@ const Layout = ({ children }) => {
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             <Link 
               to="/" 
-              className="nav-link block px-3 py-2 rounded-lg"
+              className="nav-link block px-3 py-2 rounded-lg text-base font-medium transition-all duration-200 hover:bg-gray-800 hover:text-red-400"
               onClick={() => setIsMenuOpen(false)}
             >
-              Home
+              <span className="flex items-center">
+                <span className="mr-2">🏠</span>
+                Home
+              </span>
             </Link>
             <Link 
               to="/upload" 
-              className="nav-link block px-3 py-2 rounded-lg"
+              className="nav-link block px-3 py-2 rounded-lg text-base font-medium transition-all duration-200 hover:bg-gray-800 hover:text-red-400"
               onClick={() => setIsMenuOpen(false)}
             >
-              Upload
+              <span className="flex items-center">
+                <span className="mr-2">📤</span>
+                Upload
+              </span>
             </Link>
             <Link 
               to="/documents" 
-              className="nav-link block px-3 py-2 rounded-lg"
+              className="nav-link block px-3 py-2 rounded-lg text-base font-medium transition-all duration-200 hover:bg-gray-800 hover:text-red-400"
               onClick={() => setIsMenuOpen(false)}
             >
-              Documents
+              <span className="flex items-center">
+                <span className="mr-2">📁</span>
+                Docs
+              </span>
             </Link>
             <Link 
               to="/chat" 
-              className="nav-link block px-3 py-2 rounded-lg"
+              className="nav-link block px-3 py-2 rounded-lg text-base font-medium transition-all duration-200 hover:bg-gray-800 hover:text-red-400"
               onClick={() => setIsMenuOpen(false)}
             >
-              Chat
+              <span className="flex items-center">
+                <span className="mr-2">💬</span>
+                Chat
+              </span>
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {children}
-      </main>
+      {/* Main Content Area with Sidebar Layout */}
+      <div className="flex flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 flex-grow">
+        <main className="w-full">
+          {children}
+        </main>
+      </div>
 
       {/* Footer */}
-      <footer className="bg-gray-950 border-t border-gray-800 mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <footer className="bg-gray-900 border-t border-gray-800 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-500 text-sm">
               &copy; {new Date().getFullYear()} RAGify - Document Question Answering System
             </p>
             <div className="flex space-x-6">
-              <a href="#" className="text-gray-400 hover:text-red-500 transition-colors duration-200">Privacy</a>
-              <a href="#" className="text-gray-400 hover:text-red-500 transition-colors duration-200">Terms</a>
-              <a href="#" className="text-gray-400 hover:text-red-500 transition-colors duration-200">Support</a>
+              <a href="#" className="text-gray-500 hover:text-red-400 transition-colors duration-200 text-sm">Privacy</a>
+              <a href="#" className="text-gray-500 hover:text-red-400 transition-colors duration-200 text-sm">Terms</a>
+              <a href="#" className="text-gray-500 hover:text-red-400 transition-colors duration-200 text-sm">Support</a>
             </div>
           </div>
         </div>
