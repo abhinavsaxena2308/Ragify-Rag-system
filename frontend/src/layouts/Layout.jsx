@@ -65,26 +65,11 @@ const Layout = ({ children }) => {
           padding: '12px 16px',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'center'
         }}>
-          <button
-            onClick={toggleSidebar}
-            style={{ 
-              background: 'none', 
-              border: '1px solid #ccc', 
-              padding: '8px',
-              cursor: 'pointer',
-              display: isSidebarOpen ? 'none' : 'block'
-            }}
-          >
-            Menu
-          </button>
-          
           <h2 style={{ margin: 0, fontSize: '16px' }}>
             {navigation.find(item => item.path === location.pathname)?.name || 'RAGify'}
           </h2>
-
-          <div style={{ width: '40px' }}></div>
         </header>
 
         {/* Main Content Area */}
