@@ -9,8 +9,9 @@ const chatService = {
 
     try {
       const response = await axiosClient.post('/chat/ask', {
-        question: question.trim(),
-        documentIds: Array.isArray(documentIds) ? documentIds : []
+        query: question.trim(),
+        session_id: null,
+        document_ids: Array.isArray(documentIds) ? documentIds : []
       });
 
       return response.data;

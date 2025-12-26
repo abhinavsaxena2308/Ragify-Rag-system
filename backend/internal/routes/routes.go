@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"context"
+	"math/rand"
 	"ragify-backend/internal/config"
 	"ragify-backend/internal/handlers"
 	"ragify-backend/internal/services"
@@ -9,14 +11,55 @@ import (
 	"gorm.io/gorm"
 )
 
+// MockEmbeddingProvider for testing
+type MockEmbeddingProvider struct{}
+
+func (m *MockEmbeddingProvider) GenerateEmbedding(ctx context.Context, text string) ([]float32, error) {
+	// Generate a simple mock embedding of 1536 dimensions (matching OpenAI default)
+	embedding := make([]float32, 1536)
+	for i := range embedding {
+		embedding[i] = rand.Float32()*2 - 1 // Random values between -1 and 1
+	}
+	return embedding, nil
+}
+
+func (m *MockEmbeddingProvider) GenerateBatchEmbeddings(ctx context.Context, texts []string) ([]services.EmbeddingData, error) {
+	var embeddings []services.EmbeddingData
+	for i, text := range texts {
+		embedding, err := m.GenerateEmbedding(ctx, text)
+		if err != nil {
+			return nil, err
+		}
+		embeddings = append(embeddings, services.EmbeddingData{
+			Object:    "embedding",
+			Embedding: embedding,
+			Index:     i,
+		})
+	}
+	return embeddings, nil
+}
+
+func (m *MockEmbeddingProvider) GetModelName() string {
+	return "mock-embedding-model"
+}
+
+func (m *MockEmbeddingProvider) GetDimensions() int {
+	return 1536
+}
+
+func (m *MockEmbeddingProvider) IsHealthy(ctx context.Context) error {
+	return nil
+}
+
 // SetupRoutes configures all application routes
 func SetupRoutes(e *echo.Echo, db *gorm.DB) {
 	// Load configuration
 	cfg := config.LoadConfig()
 
-	// Initialize embedding service
+	// Initialize embedding service (using mock for testing)
+	mockProvider := &MockEmbeddingProvider{}
 	embeddingConfig := config.DefaultEmbeddingConfig()
-	embeddingService := services.NewOpenRouterEmbeddingService(embeddingConfig)
+	embeddingService := services.NewEmbeddingService(mockProvider, embeddingConfig)
 
 	// Initialize vector store
 	vectorStore, err := services.NewVectorStoreService(cfg.FAISS, cfg.RAG.EmbeddingDimensions)

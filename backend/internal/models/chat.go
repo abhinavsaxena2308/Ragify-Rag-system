@@ -21,6 +21,6 @@ type Message struct {
 	Role        string      `json:"role" gorm:"not null"` // 'user' or 'assistant'
 	Content     string      `json:"content" gorm:"not null"`
 	Timestamp   time.Time   `json:"timestamp" gorm:"autoCreateTime"`
-	SourceDocs  []string    `json:"source_docs"` // References to source documents
+	SourceDocs  string      `json:"source_docs" gorm:"type:text"` // JSON serialized source documents
 	ChatSession ChatSession `json:"-" gorm:"foreignKey:SessionID;references:SessionID"`
 }

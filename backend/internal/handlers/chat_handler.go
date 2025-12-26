@@ -22,9 +22,9 @@ func NewChatHandler(service *services.ChatService) *ChatHandler {
 func (h *ChatHandler) AskQuestion(c echo.Context) error {
 	// Request structure
 	var req struct {
-		SessionID   string `json:"session_id"`
-		Query       string `json:"query"`
-		DocumentIDs []uint `json:"document_ids,omitempty"`
+		SessionID   *string `json:"session_id"`
+		Query       string  `json:"query"`
+		DocumentIDs []uint  `json:"document_ids,omitempty"`
 	}
 
 	if err := c.Bind(&req); err != nil {
@@ -35,14 +35,20 @@ func (h *ChatHandler) AskQuestion(c echo.Context) error {
 		return utils.BadRequest(c, "Query is required")
 	}
 
+	// Handle null session_id by converting to empty string
+	sessionID := ""
+	if req.SessionID != nil {
+		sessionID = *req.SessionID
+	}
+
 	// Use the service to process the question
-	answer, sources, err := h.Service.AskQuestion(req.SessionID, req.Query, req.DocumentIDs)
+	answer, sources, err := h.Service.AskQuestion(sessionID, req.Query, req.DocumentIDs)
 	if err != nil {
 		return utils.InternalError(c, "Failed to process question", err)
 	}
 
 	response := map[string]interface{}{
-		"session_id": req.SessionID,
+		"session_id": sessionID,
 		"answer":     answer,
 		"sources":    sources,
 	}
